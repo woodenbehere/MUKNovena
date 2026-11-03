@@ -310,6 +310,14 @@ const PRAYERS = {
     "Queen of the Holy Rosary, you have deigned to come to Fatima to reveal to the three shepherd children the treasures of grace hidden in the Rosary. Inspire my heart with a sincere love of this devotion, in order that by meditating on the Mysteries of our Redemption which are recalled in it, I may be enriched with its fruits and obtain peace for the world, the conversion of sinners and of Russia, and the favor which I ask of you in this Rosary.",
     "I ask it for the greater glory of God, for your own honor, and for the good of souls, especially for my own. Amen."
   ],
+  // Prayer to Saint Joseph (line breaks are kept as written)
+  stJoseph: [
+    "To you, O blessed Joseph,\ndo we come in our tribulation,\nand having implored the help of your most holy Spouse,\nwe confidently invoke your patronage also.",
+    "Through that charity which bound you\nto the Immaculate Virgin Mother of God\nand through the paternal love\nwith which you embraced the Child Jesus,\nwe humbly beg you graciously to regard the inheritance\nwhich Jesus Christ has purchased by his Blood,\nand with your power and strength to aid us in our necessities.",
+    "O most watchful guardian of the Holy Family,\ndefend the chosen children of Jesus Christ;\nO most loving father, ward off from us\nevery contagion of error and corrupting influence;\nO our most mighty protector, be kind to us\nand from heaven assist us in our struggle\nwith the power of darkness.",
+    "As once you rescued the Child Jesus from deadly peril,\nso now protect God’s Holy Church\nfrom the snares of the enemy and from all adversity;\nshield, too, each one of us by your constant protection,\nso that, supported by your example and your aid,\nwe may be able to live piously, to die in holiness,\nand to obtain eternal happiness in heaven.",
+    "Amen."
+  ],
   pardonPrayer: "My God, I believe, I adore, I hope, and I love Thee! I ask forgiveness for those who do not believe, do not adore, do not hope, and do not love Thee.",
   ourFather: "Our Father, who art in heaven, hallowed be Thy name; Thy kingdom come; Thy will be done on earth as it is in heaven. Give us this day our daily bread; and forgive us our trespasses as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. Amen.",
   hailMary: "Hail Mary, full of grace, the Lord is with thee. Blessed art thou among women, and blessed is the fruit of thy womb, Jesus. Holy Mary, Mother of God, pray for us sinners, now and at the hour of our death. Amen.",
@@ -615,7 +623,8 @@ function drawPrayers(){
     sec(3,"First three decades",decades(1,3,ms))+
     sec(4,`Meditation for Day ${prayDay}`,para(PRAYERS.meditations[prayDay-1])+srcLink(`Day ${prayDay} on Ascension Press`),true)+
     sec(5,"Last two decades",decades(4,5,ms))+
-    sec(6,"Prayer to Mary, Undoer of Knots",para(PRAYERS.undoerOfKnots)+srcLink("Closing prayer on Ascension Press"));
+    sec(6,"Prayer to Mary, Undoer of Knots",para(PRAYERS.undoerOfKnots)+srcLink("Closing prayer on Ascension Press"))+
+    sec(7,"Prayer to Saint Joseph",PRAYERS.stJoseph.map(t=>`<p>${esc(t).replace(/\n/g,"<br>")}</p>`).join(""));
 }
 function openPrayers(day){const n=current();prayDay=day||nextDay(n)||9;drawPrayers();show("prayOverlay");$("prayOverlay").querySelector(".sheet").scrollTop=0}
 $("prayBtn").onclick=()=>openPrayers();
