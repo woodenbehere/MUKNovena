@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2b4f86">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Novena">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<style>*{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>Undoer of Knots Novena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@400;500;600&display=swap">
+<style>
+/* Layout: one centered column — the rosary loop of nine roses is the hero, intention above it, history below; prayers open in a sheet. */
+:root{
+  --bg:#edf1f7;            /* soft Marian blue-grey */
+  --paper:#f9fafc;
+  --ink:#1d2738;
+  --muted:#5a6578;
+  --line:#d3dae6;
+  --marian:#2b4f86;
+  --marian-soft:#dfe7f4;
+  --rose:#c23a55;
+  --rose-deep:#8e1f3a;
+  --rose-light:#e9798c;
+  --glow:rgba(226,80,110,.55);
+  --bud:#e3e7ee;
+  --bud-edge:#a9b3c3;
+  --sepal:#7d9a7c;
+  --gold:#c9a24a;
+  --gold-ink:#6f5418;
+  --chain:#8f9ab0;
+  --shadow:0 1px 2px rgba(29,39,56,.06),0 8px 24px rgba(29,39,56,.07);
+  --note:#fbf3dc; --note-ink:#6a5520;
+  --f-display:"Cormorant Garamond","EB Garamond",Garamond,Georgia,serif;
+  --f-body:"Lora",Georgia,"Times New Roman",serif;
+  --f-ui:"Jost","Avenir Next","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1624; --paper:#172133; --ink:#e8ecf3; --muted:#9aa6bb; --line:#2a3750;
+  --marian:#8fb0e6; --marian-soft:#1f2d47; --rose:#e2566f; --rose-deep:#a52a46; --rose-light:#f39aaa;
+  --glow:rgba(240,95,125,.6); --bud:#2a3550; --bud-edge:#55627e; --sepal:#6f8f74;
+  --gold:#d7b462; --gold-ink:#2b2008; --chain:#56627c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
+  --note:#2c2614; --note-ink:#e6d39c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1624; --paper:#172133; --ink:#e8ecf3; --muted:#9aa6bb; --line:#2a3750;
+  --marian:#8fb0e6; --marian-soft:#1f2d47; --rose:#e2566f; --rose-deep:#a52a46; --rose-light:#f39aaa;
+  --glow:rgba(240,95,125,.6); --bud:#2a3550; --bud-edge:#55627e; --sepal:#6f8f74;
+  --gold:#d7b462; --gold-ink:#2b2008; --chain:#56627c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
+  --note:#2c2614; --note-ink:#e6d39c; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:22px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--marian);outline-offset:3px;border-radius:6px}
+
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-ui);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--marian);font-weight:500}
+h1{font-family:var(--f-display);font-weight:600;font-size:clamp(30px,8vw,40px);line-height:1.05;margin:4px 0 0;text-wrap:balance}
+.theme-btn{flex:none;min-width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--paper);font-family:var(--f-ui);font-size:13px;padding:0 14px;color:var(--muted)}
+.lock-btn{padding:0;width:44px;display:grid;place-items:center;color:var(--marian)}
+
+.intent{background:var(--paper);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+.label{font-family:var(--f-ui);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.intent-text{font-family:var(--f-display);font-size:22px;line-height:1.3;font-style:italic;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.intent-text.empty{color:var(--muted)}
+.intent-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.meta{font-family:var(--f-ui);font-size:13px;color:var(--muted)}
+textarea{width:100%;box-sizing:border-box;min-height:96px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;padding:10px 12px}
+.link-btn{background:none;border:none;color:var(--marian);font-family:var(--f-ui);font-size:14px;font-weight:500;padding:8px 2px;min-height:40px}
+
+.strand-card{position:relative}
+svg.strand{display:block;width:100%;max-width:440px;margin:0 auto;height:auto;overflow:visible;touch-action:manipulation}
+.chain{fill:none;stroke:var(--chain);stroke-width:3;stroke-linecap:round;stroke-dasharray:.1 7}
+.chain-solid{stroke:var(--chain);stroke-width:1.5}
+.medal-outer{fill:var(--gold)}
+.medal-inner{fill:none;stroke:var(--gold-ink);stroke-opacity:.45;stroke-width:1.2}
+.medal-m{fill:var(--gold-ink);font-family:var(--f-display);font-weight:700;font-size:26px}
+.medal-cross{stroke:var(--gold-ink);stroke-width:2;stroke-linecap:round}
+.bead{cursor:pointer;outline:none}
+.bead .hit{fill:transparent}
+.bead .ring{fill:none;stroke:var(--marian);stroke-width:2;opacity:0}
+.bead.next .ring{opacity:1;animation:pulse 2.4s ease-in-out infinite}
+.bead:focus-visible .ring{opacity:1;stroke-dasharray:4 3}
+.bud,.bloom{transform-box:fill-box;transform-origin:center;transition:transform .7s cubic-bezier(.2,.9,.25,1.25),opacity .5s ease}
+.bud-body{fill:var(--bud);stroke:var(--bud-edge);stroke-width:1.2}
+.sepal{fill:var(--sepal)}
+.bloom{opacity:0;transform:scale(.25) rotate(-40deg)}
+.petal-o{fill:var(--rose);stroke:var(--rose-deep);stroke-width:.8}
+.petal-i{fill:var(--rose-light);stroke:var(--rose-deep);stroke-width:.6}
+.heart{fill:none;stroke:var(--rose-deep);stroke-width:1.4;stroke-linecap:round}
+.bead.done .bud{opacity:0;transform:scale(.6)}
+.bead.done .bloom{opacity:1;transform:scale(1) rotate(0)}
+.bead.done .petals{filter:drop-shadow(0 0 7px var(--glow))}
+.bead.done.just .petals{animation:glow 1.6s ease-out}
+.num{font-family:var(--f-ui);font-size:12px;fill:var(--muted);text-anchor:middle;dominant-baseline:middle;font-weight:500}
+.num.next{fill:var(--marian);font-weight:600}
+.center-big{font-family:var(--f-display);font-weight:600;font-size:44px;fill:var(--ink);text-anchor:middle}
+.center-small{font-family:var(--f-ui);font-size:12px;letter-spacing:.14em;text-transform:uppercase;fill:var(--muted);text-anchor:middle}
+.center-cap{font-family:var(--f-body);font-style:italic;font-size:14px;fill:var(--marian);text-anchor:middle}
+@keyframes pulse{0%,100%{stroke-opacity:.25}50%{stroke-opacity:1}}
+@keyframes glow{0%{filter:drop-shadow(0 0 0 var(--glow))}40%{filter:drop-shadow(0 0 16px var(--glow))}100%{filter:drop-shadow(0 0 7px var(--glow))}}
+
+.note{background:var(--note);color:var(--note-ink);border-radius:12px;padding:12px 14px;font-size:15px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{min-height:52px;border-radius:14px;border:1px solid var(--line);background:var(--paper);font-family:var(--f-ui);font-size:15px;font-weight:500;padding:10px 14px}
+.btn.primary{background:var(--marian);border-color:var(--marian);color:var(--paper)}
+.btn.rose{background:var(--rose);border-color:var(--rose);color:#fff}
+.sync{font-family:var(--f-ui);font-size:12px;color:var(--muted);text-align:center}
+
+.history h2{font-family:var(--f-display);font-weight:600;font-size:24px;margin:0 0 8px}
+.hist-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.hist-item{display:flex;gap:12px;align-items:center;padding:14px 2px;border-top:1px solid var(--line)}
+.hist-item:last-child{border-bottom:1px solid var(--line)}
+.mini{flex:none;display:flex;gap:2px;flex-wrap:wrap;width:42px}
+.mini i{width:10px;height:10px;border-radius:50%;background:var(--bud);border:1px solid var(--bud-edge);box-sizing:border-box}
+.mini i.on{background:var(--rose);border-color:var(--rose-deep)}
+.hist-body{flex:1;min-width:0}
+.hist-intent{font-family:var(--f-display);font-size:18px;font-style:italic;line-height:1.25;overflow-wrap:anywhere;margin:0}
+.chip{display:inline-block;font-family:var(--f-ui);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--marian-soft);color:var(--marian);margin-right:6px}
+.chip.done{background:var(--rose);color:#fff}
+.empty-hist{color:var(--muted);font-style:italic;font-size:15px}
+
+/* overlays */
+.overlay{position:fixed;inset:0;background:rgba(10,15,25,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--paper);color:var(--ink);width:100%;max-width:620px;max-height:92%;overflow:auto;border-radius:20px 20px 0 0;box-sizing:border-box;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+.sheet h3{font-family:var(--f-display);font-weight:600;font-size:26px;margin:0}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:-18px;background:var(--paper);padding:6px 0 10px;z-index:1}
+.close{width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--bg);font-size:22px;line-height:1}
+.daychips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px}
+.daychips button{flex:none;width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--bg);font-family:var(--f-ui);font-weight:500}
+.daychips button.sel{background:var(--marian);color:var(--paper);border-color:var(--marian)}
+.daychips button.dn{box-shadow:inset 0 -3px 0 var(--rose)}
+.pray-intent{background:var(--marian-soft);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.pray-intent p{margin:4px 0 0;font-family:var(--f-display);font-style:italic;font-size:19px;line-height:1.3;white-space:pre-wrap;overflow-wrap:anywhere}
+details{border-top:1px solid var(--line)}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{list-style:none;display:flex;align-items:center;gap:12px;min-height:56px;cursor:pointer;font-family:var(--f-display);font-size:20px;font-weight:600}
+summary::-webkit-details-marker{display:none}
+summary .n{flex:none;width:28px;height:28px;border-radius:14px;border:1px solid var(--gold);color:var(--gold-ink);background:var(--gold);font-family:var(--f-ui);font-size:13px;display:grid;place-items:center}
+summary::after{content:"+";margin-left:auto;font-family:var(--f-ui);font-size:22px;color:var(--muted)}
+details[open] > summary::after{content:"–"}
+.prayer{font-size:17.5px;line-height:1.7;max-width:62ch;padding:0 2px 18px}
+.prayer p{margin:0 0 .8em}
+.prayer .rub{font-family:var(--f-ui);font-size:13px;color:var(--muted);letter-spacing:.02em}
+.prayer ol{padding-left:22px;margin:0 0 .8em}
+.prayer h4{font-family:var(--f-ui);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--marian);margin:14px 0 4px;font-weight:600}
+.dialog{border-radius:20px;margin:0 auto}
+.dialog .row{display:flex;gap:10px;margin-top:14px}
+.dialog .row .btn{flex:1}
+.popup-day{font-family:var(--f-display);font-size:24px;font-weight:600}
+
+.petal-fall{position:fixed;top:-30px;width:14px;height:18px;border-radius:70% 0 70% 0;background:var(--rose);opacity:.9;z-index:40;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(var(--rot));opacity:.2}}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);font-family:var(--f-ui);font-size:14px;padding:10px 16px;border-radius:99px;z-index:50;max-width:calc(100% - 32px);text-align:center}
+.myst-pick{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.myst-pick select{appearance:none;-webkit-appearance:none;width:100%;min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238f9ab0' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 14px center;color:var(--ink);font-family:var(--f-ui);font-size:16px;padding:10px 40px 10px 14px}
+/* scriptural rosary verses under each mystery */
+details.myst,details.myst:last-of-type{border:none}
+details.myst > summary{min-height:44px;font-family:var(--f-body);font-size:17.5px;font-weight:400;align-items:center;gap:10px}
+details.myst > summary::after{font-size:22px}
+.verses{margin:8px 0 4px;padding-left:22px;font-size:16px;line-height:1.6}
+.verses li{margin-bottom:6px}
+.verses .ref{font-family:var(--f-ui);font-size:12px;color:var(--muted);white-space:nowrap}
+/* PIN lock */
+body.locked .wrap,body.locked .overlay{filter:blur(18px);pointer-events:none;user-select:none}
+.lock{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(120,135,160,.35);background:color-mix(in srgb,var(--bg) 55%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lock-card{background:var(--paper);border-radius:24px;box-shadow:0 20px 60px rgba(10,15,25,.28);width:100%;max-width:340px;padding:26px 22px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.lock-medal{width:52px;height:52px;border-radius:50%;background:var(--gold);color:var(--gold-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1}
+.lock-card h2{font-family:var(--f-display);font-weight:600;font-size:26px;margin:8px 0 0}
+.noscript-note{font-family:var(--f-ui);font-size:14px;line-height:1.45;color:var(--rose);background:var(--note);border-radius:10px;padding:10px 12px;margin:6px 0 0}
+.lock-msg{font-family:var(--f-ui);font-size:14px;color:var(--muted);min-height:20px;margin:0}
+.lock-msg.err{color:var(--rose)}
+.dots{display:flex;gap:16px;margin:14px 0 18px}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--marian);box-sizing:border-box;transition:background .15s}
+.dots i.on{background:var(--marian)}
+.dots.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+.keypad{display:grid;grid-template-columns:repeat(3,72px);gap:12px;justify-content:center}
+.keypad button{width:72px;height:72px;border-radius:50%;border:1px solid var(--line);background:var(--bg);font-family:var(--f-ui);font-size:26px;font-weight:500}
+.keypad button:active{background:var(--marian-soft)}
+.keypad .ghost{border:none;background:none;font-size:15px;color:var(--muted)}
+.lock-foot{display:flex;gap:16px;justify-content:center;margin-top:8px;min-height:40px}
+@media (max-height:600px){.keypad{grid-template-columns:repeat(3,60px);gap:8px}.keypad button{width:60px;height:60px;font-size:22px}.lock-card{padding:16px}}
+.site-foot{text-align:center;font-family:var(--f-ui);font-size:12px;letter-spacing:.08em;color:var(--muted);padding-top:12px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body class="locked">
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Novena · Nine days</div>
+      <h1>Mary, Undoer of Knots</h1>
+    </div>
+    <div style="display:flex;gap:8px;flex:none">
+      <button class="theme-btn lock-btn" id="lockNowBtn" aria-label="Lock the page" title="Lock">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="11" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/><circle cx="12" cy="16" r="1.4" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button class="theme-btn" id="themeBtn" aria-label="Change light or dark mode">Auto</button>
+    </div>
+  </header>
+
+  <section class="intent" id="intentCard" aria-live="polite"></section>
+
+  <section class="strand-card">
+    <svg class="strand" id="strand" viewBox="0 0 360 430" role="group" aria-label="Nine roses, one for each day of the novena"></svg>
+  </section>
+
+  <div class="note" id="skipNote" hidden></div>
+
+  <div class="actions">
+    <button class="btn primary" id="prayBtn">Today’s Prayers</button>
+    <button class="btn" id="newBtn">Start New Novena</button>
+  </div>
+  <div class="sync">Your history is saved in this browser.
+    <div style="display:flex;flex-wrap:wrap;column-gap:16px;justify-content:center;margin-top:4px">
+      <button class="link-btn" id="exportBtn">Save a backup</button>
+      <button class="link-btn" id="importBtn">Restore a backup</button>
+      <button class="link-btn" id="changePinBtn">Change PIN</button>
+      <button class="link-btn" id="clearHistBtn" style="color:var(--rose)">Clear history</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div></div>
+
+  <section class="history">
+    <h2>Your novenas</h2>
+    <ul class="hist-list" id="hist"></ul>
+  </section>
+  <footer class="site-foot">Parden Web Apps 2026</footer>
+</div>
+
+<div class="lock" id="lockScreen" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
+  <div class="lock-card">
+    <div class="lock-medal" aria-hidden="true">M</div>
+    <h2 id="lockTitle">Enter your PIN</h2>
+    <p class="noscript-note" id="noJsNote">This preview can’t run the tracker. On an iPhone, open it from a web address in Safari instead of from Files, Messages or Mail.</p>
+    <p class="lock-msg" id="lockMsg" aria-live="polite"></p>
+    <div class="dots" id="pinDots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="keypad" id="keypad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button class="ghost" id="lockCancel" style="visibility:hidden">Cancel</button><button data-k="0">0</button><button class="ghost" data-k="del" aria-label="Delete last digit">⌫</button>
+    </div>
+    <div class="lock-foot" id="lockFoot"><button class="link-btn" id="forgotBtn" hidden>Forgot PIN?</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="prayOverlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="prayTitle">
+    <div class="sheet-head"><h3 id="prayTitle">Day 1</h3><button class="close" id="prayClose" aria-label="Close prayers">×</button></div>
+    <div class="daychips" id="dayChips" role="tablist" aria-label="Choose a day"></div>
+    <div id="prayBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="newOverlay" hidden>
+  <div class="sheet dialog" role="dialog" aria-modal="true" aria-labelledby="newTitle">
+    <h3 id="newTitle">Begin a new novena</h3>
+    <p class="meta" id="newMeta" style="margin:6px 0 12px"></p>
+    <label class="label" for="newIntent">Your intention</label>
+    <textarea id="newIntent" placeholder="What knot are you bringing to Mary?" style="margin-top:6px"></textarea>
+    <div class="row"><button class="btn" id="newCancel">Cancel</button><button class="btn primary" id="newGo">Begin Day 1</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="dayOverlay" hidden>
+  <div class="sheet dialog" role="dialog" aria-modal="true" aria-labelledby="dayTitle">
+    <div class="popup-day" id="dayTitle">Day 1</div>
+    <p id="dayWhen" style="margin:4px 0 0"></p>
+    <div class="row"><button class="btn" id="dayKeep">Keep it</button><button class="btn rose" id="dayUnmark">Unmark day</button></div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="dayPray">Open this day’s prayers</button></div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   ✎  EDIT PRAYERS HERE
+   Replace any text below with the version from your own prayer booklet.
+   Each paragraph is its own string in a list. Keep the quotes and commas.
+   ===================================================================== */
+const PRAYERS = {
+  signOfCross: [
+    "In the name of the Father, and of the Son, and of the Holy Spirit. Amen."
+  ],
+  actOfContrition: [
+    "O my God, I am heartily sorry for having offended Thee, and I detest all my sins because of Thy just punishments, but most of all because they offend Thee, my God, who art all good and deserving of all my love.",
+    "I firmly resolve, with the help of Thy grace, to sin no more and to avoid the near occasion of sin. Amen."
+  ],
+  apostlesCreed: "I believe in God, the Father almighty, Creator of heaven and earth, and in Jesus Christ, His only Son, our Lord, who was conceived by the Holy Spirit, born of the Virgin Mary, suffered under Pontius Pilate, was crucified, died and was buried; He descended into hell; on the third day He rose again from the dead; He ascended into heaven, and is seated at the right hand of God the Father almighty; from there He will come to judge the living and the dead. I believe in the Holy Spirit, the holy catholic Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and life everlasting. Amen.",
+  hailHolyQueen: [
+    "Hail, holy Queen, Mother of mercy, our life, our sweetness and our hope. To thee do we cry, poor banished children of Eve. To thee do we send up our sighs, mourning and weeping in this valley of tears. Turn then, most gracious advocate, thine eyes of mercy toward us, and after this our exile, show unto us the blessed fruit of thy womb, Jesus. O clement, O loving, O sweet Virgin Mary.",
+    "V. Pray for us, O holy Mother of God.",
+    "R. That we may be made worthy of the promises of Christ."
+  ],
+  prayerAfterRosary: [
+    "O God, Whose only-begotten Son, by His Life, Death, and Resurrection, has purchased for us the rewards of eternal life; grant, we beseech You, that, meditating upon these Mysteries of the Most Holy Rosary of the Blessed Virgin Mary, we may imitate what they contain and obtain what they promise, through the same Christ our Lord. Amen.",
+    "V. May the divine assistance remain always with us. R. Amen.",
+    "V. And may the souls of the faithful departed, through the mercy of God, rest in peace. R. Amen."
+  ],
+  // Prayer before the Rosary (the request note is shown in italics between the two parts)
+  prayerBeforeRosary: [
+    "Queen of the Holy Rosary, you have deigned to come to Fatima to reveal to the three shepherd children the treasures of grace hidden in the Rosary. Inspire my heart with a sincere love of this devotion, in order that by meditating on the Mysteries of our Redemption which are recalled in it, I may be enriched with its fruits and obtain peace for the world, the conversion of sinners and of Russia, and the favor which I ask of you in this Rosary.",
+    "I ask it for the greater glory of God, for your own honor, and for the good of souls, especially for my own. Amen."
+  ],
+  pardonPrayer: "My God, I believe, I adore, I hope, and I love Thee! I ask forgiveness for those who do not believe, do not adore, do not hope, and do not love Thee.",
+  ourFather: "Our Father, who art in heaven, hallowed be Thy name; Thy kingdom come; Thy will be done on earth as it is in heaven. Give us this day our daily bread; and forgive us our trespasses as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. Amen.",
+  hailMary: "Hail Mary, full of grace, the Lord is with thee. Blessed art thou among women, and blessed is the fruit of thy womb, Jesus. Holy Mary, Mother of God, pray for us sinners, now and at the hour of our death. Amen.",
+  gloryBe: "Glory be to the Father, and to the Son, and to the Holy Spirit. As it was in the beginning, is now, and ever shall be, world without end. Amen.",
+  fatima: "O my Jesus, forgive us our sins, save us from the fires of hell; lead all souls to heaven, especially those in most need of Thy mercy.",
+
+  // Meditation for each day, 1 through 9.
+  // Daily meditations, Days 1–9
+  meditations: [
+    // Day 1
+    ["Dearest Holy Mother, Most Holy Mary, you undo the knots that suffocate your children, extend your merciful hands to me. I entrust to You today this knot... and all the negative consequences that it provokes in my life. I give you this knot that torments me and makes me unhappy and so impedes me from uniting myself to You and Your Son Jesus, my Savior.",
+     "I run to You, Mary, Undoer of Knots because I trust you and I know that you never despise a sinning child who comes to ask you for help. I believe that you can undo this knot because Jesus grants you everything. I believe that you want to undo this knot because you are my Mother. I believe that You will do this because you love me with eternal love.",
+     "Thank you, Dear Mother.",
+     "Mary, Undoer of Knots, pray for me.",
+     "The one who seeks grace, finds it in Mary’s hands."],
+    // Day 2
+    ["Mary, Beloved Mother, channel of all grace, I return to You today my heart, recognizing that I am a sinner in need of your help. Many times I lose the graces you grant me because of my sins of egoism, pride, rancor and my lack of generosity and humility. I turn to You today, Mary, Undoer of knots, for You to ask your Son Jesus to grant me a pure, divested, humble and trusting heart. I will live today practicing these virtues and offering you this as a sign of my love for You. I entrust into Your hands this knot (...describe) which keeps me from reflecting the glory of God.",
+     "Mary, Undoer of Knots, pray for me.",
+     "Mary offered all the moments of her day to God."],
+    // Day 3
+    ["Meditating Mother, Queen of heaven, in whose hands the treasures of the King are found, turn your merciful eyes upon me today. I entrust into your holy hands this knot in my life... and all the rancor and resentment it has caused in me. I ask Your forgiveness, God the Father, for my sin. Help me now to forgive all the persons who consciously or unconsciously provoked this knot. Give me, also, the grace to forgive me for having provoked this knot. Only in this way can You undo it. Before You, dearest Mother, and in the name of Your Son Jesus, my Savior, who has suffered so many offenses, having been granted forgiveness, I now forgive these persons... and myself, forever. Thank you, Mary, Undoer of Knots for undoing the knot of rancor in my heart and the knot which I now present to you. Amen.",
+     "Mary, Undoer of Knots, pray for me.",
+     "Turn to Mary, you who desire grace."],
+    // Day 4
+    ["Dearest Holy Mother, you are generous with all who seek you, have mercy on me. I entrust into your hands this knot which robs the peace of my heart, paralyzes my soul and keeps me from going to my Lord and serving Him with my life.",
+     "Undo this knot in my love..., O mother, and ask Jesus to heal my paralytic faith which gets down hearted with the stones on the road. Along with you, dearest Mother, may I see these stones as friends. Not murmuring against them anymore but giving endless thanks for them, may I smile trustingly in your power.",
+     "Mary, Undoer of Knots, pray for me.",
+     "Mary is the Sun and no one is deprived of her warmth."],
+    // Day 5
+    ["Mother, Undoer of Knots, generous and compassionate, I come to You today to once again entrust this knot... in my life to you and to ask the divine wisdom to undo, under the light of the Holy Spirit, this snarl of problems. No one ever saw you angry; to the contrary, your words were so charged with sweetness that the Holy Spirit was manifested on your lips. Take away from me the bitterness, anger and hatred which this knot has caused me. Give me, o dearest Mother, some of the sweetness and wisdom that is all silently reflected in your heart. And just as you were present at Pentecost, ask Jesus to send me a new presence of the Holy Spirit at this moment in my life. Holy Spirit, come upon me!",
+     "Mary, Undoer of Knots, pray for me.",
+     "Mary, with God, is powerful."],
+    // Day 6
+    ["Queen of Mercy, I entrust to you this knot in my life... and I ask you to give me a heart that is patient until you undo it. Teach me to persevere in the living word of Jesus, in the Eucharist, the Sacrament of Confession; stay with me and prepare my heart to celebrate with the angels the grace that will be granted to me. Amen! Alleluia!",
+     "Mary, Undoer of Knots, pray for me.",
+     "You are beautiful, Mary, and there is no stain of sin in You."],
+    // Day 7
+    ["Mother Most Pure, I come to You today to beg you to undo this knot in my life... and free me from the snares of Evil. God has granted you great power over all the demons. I renounce all of them today, every connection I have had with them and I proclaim Jesus as my one and only Lord and Savior. Mary, Undoer of Knots, crush the evil one’s head and destroy the traps he has set for me by this knot. Thank you, dearest Mother. Most Precious Blood of Jesus, free me!",
+     "Mary, Undoer of Knots, pray for me.",
+     "You are the glory of Jerusalem, the joy of our people."],
+    // Day 8
+    ["Virgin Mother of God, overflowing with mercy, have mercy on your child and undo this knot... in my life. I need your visit to my life, like you visited Elizabeth. Bring me Jesus, bring me the Holy Spirit. Teach me to practice the virtues of courage, joyfulness, humility and faith, and, like Elizabeth, to be filled with the Holy Spirit. Make me joyfully rest on your bosom, Mary. I consecrate you as my mother, Queen and friend. I give you my heart and everything I have (my home and family, my material and spiritual goods.) I am yours forever. Put your heart in me so that I can do everything Jesus tells me.",
+     "Mary, Undoer of Knots, pray for me.",
+     "Let us go, therefore, full of trust, to the throne of grace."],
+    // Day 9
+    ["Most Holy Mary, our Advocate, Undoer of Knots, I come today to thank you for undoing this knot in my life... You know very well the suffering it has caused me. Thank you for coming, Mother, with your long fingers of mercy to dry the tears in my eyes; you receive me in your arms and make it possible for me to receive once again the divine grace.",
+     "Mary, Undoer of Knots, dearest Mother, I thank you for undoing the knots in my life. Wrap me in your mantle of love, keep me under your protection, enlighten me with your peace! Amen.",
+     "Mary, Undoer of Knots, pray for me."]
+  ],
+
+  undoerOfKnots: [
+    "Virgin Mary, Mother of fair love, Mother who never refuses to come to the aid of a child in need, Mother whose hands never cease to serve your beloved children because they are moved by the divine love and immense mercy that exists in your heart, cast your compassionate eyes upon me and see the snarl of knots that exist in my life.",
+    "You know very well how desperate I am, my pain and how I am bound by these knots.",
+    "Mary, Mother to whom God entrusted the undoing of the knots in the lives of His children, I entrust into your hands the ribbon of my life.",
+    "No one, not even the evil one himself, can take it away from your precious care. In your hands there is no knot that cannot be undone.",
+    "Powerful Mother, by your grace and intercessory power with Your Son and My Liberator, Jesus, take into your hands today this knot... I beg you to undo it for the glory of God, once for all, You are my hope.",
+    "O my Lady, you are the only consolation God gives me, the fortification of my feeble strength, the enrichment of my destitution and with Christ the freedom from my chains.",
+    "Hear my plea.",
+    "Keep me, guide me, protect me, o safe refuge!",
+    "Mary, Undoer of Knots, pray for me."
+  ]
+};
+
+// Link to the full text you pray from (opens in a new tab from each day's prayers).
+const SOURCE_URL = "https://ascensionpress.com/pages/novena-to-our-lady-undoer-of-knots";
+
+// Each mystery: [name, fruit of the mystery]
+const MYSTERIES = {
+  Joyful:[["The Annunciation","For the love of humility"],["The Visitation","For charity toward my neighbor"],["The Nativity","For love of God"],["The Presentation","For a spirit of sacrifice"],["Finding in the Temple","For zeal for the glory of God"]],
+  Sorrowful:[["Agony in the Garden","For true repentance for my sins"],["Scourging at the Pillar","For a spirit of mortification"],["Crowning with Thorns","For moral courage"],["Carrying of the Cross","For the virtue of patience"],["The Crucifixion","For the grace of final perseverance"]],
+  Glorious:[["The Resurrection","For a strong faith"],["The Ascension","For the virtue of hope"],["The Descent of the Holy Spirit","For zeal for the glory of God"],["The Assumption","For the grace of a happy death"],["The Coronation of the B.V.M.","For a greater love for Mary"]],
+  Luminous:[["The Baptism of Jesus","For living my Baptismal Promises"],["The Miracle at Cana","For doing whatever Jesus says"],["Proclamation of the Kingdom","For seeking God’s forgiveness"],["The Transfiguration","For becoming a new person in Christ"],["Institution of the Eucharist","For active participation at Mass"]]
+};
+// Scriptural Rosary: one verse before each Hail Mary (Douay-Rheims)
+const MYSTERY_VERSES = {"Joyful": [[["Luke 1:26-27", "The angel Gabriel was sent from God into a city of Galilee, called Nazareth, to a virgin espoused to a man whose name was Joseph… and the virgin’s name was Mary."], ["Luke 1:28", "Hail, full of grace, the Lord is with thee: blessed art thou among women."], ["Luke 1:29", "Who having heard, was troubled at his saying, and thought with herself what manner of salutation this should be."], ["Luke 1:30", "Fear not, Mary, for thou hast found grace with God."], ["Luke 1:31", "Behold thou shalt conceive in thy womb, and shalt bring forth a son; and thou shalt call his name Jesus."], ["Luke 1:32", "He shall be great, and shall be called the Son of the most High."], ["Luke 1:34", "How shall this be done, because I know not man?"], ["Luke 1:35", "The Holy Ghost shall come upon thee, and the power of the most High shall overshadow thee."], ["Luke 1:37", "Because no word shall be impossible with God."], ["Luke 1:38", "Behold the handmaid of the Lord; be it done to me according to thy word."]], [["Luke 1:39", "Mary rising up in those days, went into the hill country with haste into a city of Juda."], ["Luke 1:40", "And she entered into the house of Zachary, and saluted Elizabeth."], ["Luke 1:41", "When Elizabeth heard the salutation of Mary, the infant leaped in her womb. And Elizabeth was filled with the Holy Ghost."], ["Luke 1:42", "Blessed art thou among women, and blessed is the fruit of thy womb."], ["Luke 1:43", "And whence is this to me, that the mother of my Lord should come to me?"], ["Luke 1:45", "Blessed art thou that hast believed, because those things shall be accomplished that were spoken to thee by the Lord."], ["Luke 1:46-47", "My soul doth magnify the Lord. And my spirit hath rejoiced in God my Saviour."], ["Luke 1:48", "Because he hath regarded the humility of his handmaid; for behold from henceforth all generations shall call me blessed."], ["Luke 1:49", "Because he that is mighty, hath done great things to me; and holy is his name."], ["Luke 1:56", "And Mary abode with her about three months; and she returned to her own house."]], [["Luke 2:1", "There went out a decree from Caesar Augustus, that the whole world should be enrolled."], ["Luke 2:4-5", "Joseph also went up from Galilee… into the city of David, which is called Bethlehem… to be enrolled with Mary his espoused wife, who was with child."], ["Luke 2:7", "She brought forth her firstborn son, and wrapped him up in swaddling clothes, and laid him in a manger; because there was no room for them in the inn."], ["Luke 2:8", "There were in the same country shepherds watching, and keeping the night watches over their flock."], ["Luke 2:10", "Fear not; for, behold, I bring you good tidings of great joy, that shall be to all the people."], ["Luke 2:11", "For, this day, is born to you a Saviour, who is Christ the Lord, in the city of David."], ["Luke 2:14", "Glory to God in the highest; and on earth peace to men of good will."], ["Luke 2:16", "They came with haste; and they found Mary and Joseph, and the infant lying in the manger."], ["Matthew 2:11", "Entering into the house, they found the child with Mary his mother, and falling down they adored him."], ["Luke 2:19", "But Mary kept all these words, pondering them in her heart."]], [["Luke 2:22", "They carried him to Jerusalem, to present him to the Lord."], ["Luke 2:23", "Every male opening the womb shall be called holy to the Lord."], ["Luke 2:24", "And to offer a sacrifice… a pair of turtledoves, or two young pigeons."], ["Luke 2:25", "There was a man in Jerusalem named Simeon, and this man was just and devout, waiting for the consolation of Israel."], ["Luke 2:26", "He had received an answer from the Holy Ghost, that he should not see death, before he had seen the Christ of the Lord."], ["Luke 2:28", "He also took him into his arms, and blessed God."], ["Luke 2:29-30", "Now thou dost dismiss thy servant, O Lord, according to thy word in peace; because my eyes have seen thy salvation."], ["Luke 2:32", "A light to the revelation of the Gentiles, and the glory of thy people Israel."], ["Luke 2:34", "Behold this child is set for the fall, and for the resurrection of many in Israel, and for a sign which shall be contradicted."], ["Luke 2:35", "And thy own soul a sword shall pierce, that, out of many hearts, thoughts may be revealed."]], [["Luke 2:41", "His parents went every year to Jerusalem, at the solemn day of the pasch."], ["Luke 2:42", "When he was twelve years old, they going up into Jerusalem, according to the custom of the feast."], ["Luke 2:43", "The child Jesus remained in Jerusalem; and his parents knew it not."], ["Luke 2:44", "Thinking that he was in the company, they came a day’s journey, and sought him among their kinsfolks and acquaintance."], ["Luke 2:45", "And not finding him, they returned into Jerusalem, seeking him."], ["Luke 2:46", "After three days, they found him in the temple, sitting in the midst of the doctors, hearing them, and asking them questions."], ["Luke 2:47", "And all that heard him were astonished at his wisdom and his answers."], ["Luke 2:48", "Son, why hast thou done so to us? behold thy father and I have sought thee sorrowing."], ["Luke 2:49", "Did you not know, that I must be about my father’s business?"], ["Luke 2:51-52", "He went down with them, and came to Nazareth, and was subject to them… And Jesus advanced in wisdom, and age, and grace with God and men."]]], "Sorrowful": [[["Matthew 26:36", "Jesus came with them into a country place which is called Gethsemani… Sit you here, till I go yonder and pray."], ["Matthew 26:37", "He began to grow sorrowful and to be sad."], ["Matthew 26:38", "My soul is sorrowful even unto death: stay you here, and watch with me."], ["Matthew 26:39", "My Father, if it be possible, let this chalice pass from me. Nevertheless not as I will, but as thou wilt."], ["Luke 22:43", "And there appeared to him an angel from heaven, strengthening him."], ["Luke 22:44", "Being in an agony, he prayed the longer. And his sweat became as drops of blood, trickling down upon the ground."], ["Matthew 26:40", "What? Could you not watch one hour with me?"], ["Matthew 26:41", "Watch ye, and pray that ye enter not into temptation. The spirit indeed is willing, but the flesh weak."], ["Matthew 26:42", "My Father, if this chalice may not pass away, but I must drink it, thy will be done."], ["Luke 22:48", "Judas, dost thou betray the Son of man with a kiss?"]], [["Matthew 27:1", "When morning was come, all the chief priests and ancients of the people took counsel against Jesus, that they might put him to death."], ["Mark 15:1", "Binding Jesus, they led him away, and delivered him to Pilate."], ["John 18:33", "Art thou the king of the Jews?"], ["John 18:36", "My kingdom is not of this world."], ["John 18:37", "For this was I born, and for this came I into the world; that I should give testimony to the truth."], ["John 18:38", "Pilate saith to him: What is truth?… I find no cause in him."], ["Matthew 27:22", "What shall I do then with Jesus that is called Christ? They say all: Let him be crucified."], ["John 19:1", "Then therefore, Pilate took Jesus, and scourged him."], ["Isaias 53:5", "He was wounded for our iniquities, he was bruised for our sins… and by his bruises we are healed."], ["Isaias 53:7", "He was offered because it was his own will, and he opened not his mouth: he shall be led as a sheep to the slaughter."]], [["Matthew 27:27", "The soldiers of the governor taking Jesus into the hall, gathered together unto him the whole band."], ["Matthew 27:28", "And stripping him, they put a scarlet cloak about him."], ["Matthew 27:29", "Platting a crown of thorns, they put it upon his head, and a reed in his right hand."], ["Matthew 27:29", "And bowing the knee before him, they mocked him, saying: Hail, king of the Jews."], ["Matthew 27:30", "And spitting upon him, they took the reed, and struck his head."], ["John 19:5", "Jesus therefore came forth, bearing the crown of thorns and the purple garment. And he saith to them: Behold the Man."], ["John 19:6", "When the chief priests… had seen him, they cried out, saying: Crucify him, crucify him."], ["John 19:15", "We have no king but Caesar."], ["Isaias 53:3", "Despised, and the most abject of men, a man of sorrows, and acquainted with infirmity."], ["John 19:16", "Then therefore he delivered him to them to be crucified."]], [["John 19:17", "Bearing his own cross, he went forth to that place which is called Calvary."], ["Matthew 16:24", "If any man will come after me, let him deny himself, and take up his cross, and follow me."], ["Luke 23:26", "They laid hold of one Simon of Cyrene… and they laid the cross on him to carry after Jesus."], ["Luke 23:27", "There followed him a great multitude of people, and of women, who bewailed and lamented him."], ["Luke 23:28", "Daughters of Jerusalem, weep not over me; but weep for yourselves, and for your children."], ["Matthew 11:28", "Come to me, all you that labour, and are burdened, and I will refresh you."], ["Matthew 11:29", "Take up my yoke upon you, and learn of me, because I am meek, and humble of heart."], ["Matthew 11:30", "For my yoke is sweet and my burden light."], ["Isaias 53:4", "Surely he hath borne our infirmities and carried our sorrows."], ["Luke 23:32", "And there were also two other malefactors led with him to be put to death."]], [["Luke 23:33", "When they were come to the place which is called Calvary, they crucified him there."], ["Luke 23:34", "Father, forgive them, for they know not what they do."], ["Luke 23:42", "Lord, remember me when thou shalt come into thy kingdom."], ["Luke 23:43", "Amen I say to thee, this day thou shalt be with me in paradise."], ["John 19:25", "Now there stood by the cross of Jesus, his mother."], ["John 19:26", "Woman, behold thy son."], ["John 19:27", "After that, he saith to the disciple: Behold thy mother."], ["Matthew 27:46", "My God, my God, why hast thou forsaken me?"], ["Luke 23:46", "Father, into thy hands I commend my spirit."], ["John 19:30", "It is consummated. And bowing his head, he gave up the ghost."]]], "Glorious": [[["Mark 16:2", "Very early in the morning, the first day of the week, they come to the sepulchre, the sun being now risen."], ["Mark 16:3", "Who shall roll us back the stone from the door of the sepulchre?"], ["Matthew 28:2", "An angel of the Lord descended from heaven, and coming, rolled back the stone, and sat upon it."], ["Matthew 28:5", "Fear not you; for I know that you seek Jesus who was crucified."], ["Matthew 28:6", "He is not here, for he is risen, as he said."], ["Matthew 28:7", "Go quickly, and tell ye his disciples that he is risen."], ["John 20:16", "Jesus saith to her: Mary. She turning, saith to him: Rabboni."], ["John 20:19", "Jesus came and stood in the midst, and said to them: Peace be to you."], ["John 20:28", "My Lord, and my God."], ["John 20:29", "Blessed are they that have not seen, and have believed."]], [["Acts 1:3", "He shewed himself alive after his passion, by many proofs, for forty days appearing to them, and speaking of the kingdom of God."], ["Matthew 28:18", "All power is given to me in heaven and in earth."], ["Matthew 28:19", "Going therefore, teach ye all nations; baptizing them in the name of the Father, and of the Son, and of the Holy Ghost."], ["Mark 16:16", "He that believeth and is baptized, shall be saved."], ["Matthew 28:20", "Behold I am with you all days, even to the consummation of the world."], ["Acts 1:8", "You shall receive the power of the Holy Ghost coming upon you, and you shall be witnesses unto me."], ["Acts 1:9", "While they looked on, he was raised up: and a cloud received him out of their sight."], ["Mark 16:19", "He was taken up into heaven, and sitteth on the right hand of God."], ["Acts 1:11", "This Jesus who is taken up from you into heaven, shall so come, as you have seen him going into heaven."], ["John 14:2", "In my Father’s house there are many mansions… I go to prepare a place for you."]], [["Acts 1:14", "All these were persevering with one mind in prayer with the women, and Mary the mother of Jesus."], ["Acts 2:1", "When the days of the Pentecost were accomplished, they were all together in one place."], ["Acts 2:2", "Suddenly there came a sound from heaven, as of a mighty wind coming."], ["Acts 2:3", "There appeared to them parted tongues as it were of fire, and it sat upon every one of them."], ["Acts 2:4", "They were all filled with the Holy Ghost, and they began to speak with divers tongues."], ["John 14:26", "The Paraclete, the Holy Ghost, whom the Father will send in my name, he will teach you all things."], ["John 14:27", "Peace I leave with you, my peace I give unto you."], ["Acts 2:38", "Do penance, and be baptized every one of you in the name of Jesus Christ, for the remission of your sins: and you shall receive the gift of the Holy Ghost."], ["Acts 2:41", "There were added in that day about three thousand souls."], ["Galatians 5:22", "The fruit of the Spirit is, charity, joy, peace, patience, benignity, goodness, longanimity."]], [["Genesis 3:15", "I will put enmities between thee and the woman… she shall crush thy head."], ["Psalm 44:11", "Hearken, O daughter, and see, and incline thy ear."], ["Canticle 2:10", "Arise, make haste, my love, my dove, my beautiful one, and come."], ["Canticle 4:7", "Thou art all fair, O my love, and there is not a spot in thee."], ["Canticle 6:9", "Who is she that cometh forth as the morning rising, fair as the moon, bright as the sun?"], ["Judith 15:10", "Thou art the glory of Jerusalem, thou art the joy of Israel, thou art the honour of our people."], ["Psalm 131:8", "Arise, O Lord, into thy resting place: thou and the ark, which thou hast sanctified."], ["Apocalypse 11:19", "The temple of God was opened in heaven: and the ark of his testament was seen in his temple."], ["1 Corinthians 15:22-23", "As in Adam all die, so also in Christ all shall be made alive. But every one in his own order."], ["1 Corinthians 15:54", "Death is swallowed up in victory."]], [["Apocalypse 12:1", "A great sign appeared in heaven: A woman clothed with the sun, and the moon under her feet, and on her head a crown of twelve stars."], ["Psalm 44:10", "The queen stood on thy right hand, in gilded clothing; surrounded with variety."], ["3 Kings 2:19", "A throne was set for the king’s mother, and she sat on his right hand."], ["Luke 1:52", "He hath put down the mighty from their seat, and hath exalted the humble."], ["Ecclesiasticus 24:24", "I am the mother of fair love, and of fear, and of knowledge, and of holy hope."], ["Proverbs 8:35", "He that shall find me, shall find life, and shall have salvation from the Lord."], ["Apocalypse 2:10", "Be thou faithful until death: and I will give thee the crown of life."], ["2 Timothy 4:8", "There is laid up for me a crown of justice, which the Lord the just judge will render to me in that day."], ["Romans 8:18", "The sufferings of this time are not worthy to be compared with the glory to come, that shall be revealed in us."], ["1 Corinthians 2:9", "Eye hath not seen, nor ear heard, neither hath it entered into the heart of man, what things God hath prepared for them that love him."]]], "Luminous": [[["Matthew 3:1-2", "John the Baptist came preaching in the desert of Judea, saying: Do penance: for the kingdom of heaven is at hand."], ["Matthew 3:3", "Prepare ye the way of the Lord, make straight his paths."], ["Matthew 3:11", "I indeed baptize you in water unto penance, but he that shall come after me, is mightier than I."], ["Matthew 3:13", "Then cometh Jesus from Galilee to the Jordan, unto John, to be baptized by him."], ["Matthew 3:14", "I ought to be baptized by thee, and comest thou to me?"], ["Matthew 3:15", "Suffer it to be so now. For so it becometh us to fulfil all justice."], ["Matthew 3:16", "The heavens were opened to him: and he saw the Spirit of God descending as a dove, and coming upon him."], ["Matthew 3:17", "This is my beloved Son, in whom I am well pleased."], ["John 1:29", "Behold the Lamb of God, behold him who taketh away the sin of the world."], ["John 3:5", "Unless a man be born again of water and the Holy Ghost, he cannot enter into the kingdom of God."]], [["John 2:1", "There was a marriage in Cana of Galilee: and the mother of Jesus was there."], ["John 2:2", "And Jesus also was invited, and his disciples, to the marriage."], ["John 2:3", "The wine failing, the mother of Jesus saith to him: They have no wine."], ["John 2:4", "Woman, what is that to me and to thee? my hour is not yet come."], ["John 2:5", "Whatsoever he shall say to you, do ye."], ["John 2:6", "Now there were set there six waterpots of stone."], ["John 2:7", "Fill the waterpots with water. And they filled them up to the brim."], ["John 2:8", "Draw out now, and carry to the chief steward of the feast."], ["John 2:10", "Thou hast kept the good wine until now."], ["John 2:11", "This beginning of miracles did Jesus in Cana of Galilee; and manifested his glory, and his disciples believed in him."]], [["Mark 1:15", "The time is accomplished, and the kingdom of God is at hand: repent, and believe the gospel."], ["Matthew 5:3", "Blessed are the poor in spirit: for theirs is the kingdom of heaven."], ["Matthew 5:5", "Blessed are they that mourn: for they shall be comforted."], ["Matthew 5:7", "Blessed are the merciful: for they shall obtain mercy."], ["Matthew 5:8", "Blessed are the clean of heart: for they shall see God."], ["Matthew 5:9", "Blessed are the peacemakers: for they shall be called the children of God."], ["Matthew 6:33", "Seek ye therefore first the kingdom of God, and his justice, and all these things shall be added unto you."], ["Mark 2:5", "Son, thy sins are forgiven thee."], ["Luke 15:7", "There shall be joy in heaven upon one sinner that doth penance."], ["John 20:23", "Whose sins you shall forgive, they are forgiven them."]], [["Matthew 17:1", "Jesus taketh unto him Peter and James, and John his brother, and bringeth them up into a high mountain apart."], ["Luke 9:29", "Whilst he prayed, the shape of his countenance was altered."], ["Matthew 17:2", "His face did shine as the sun: and his garments became white as snow."], ["Matthew 17:3", "And behold there appeared to them Moses and Elias talking with him."], ["Matthew 17:4", "Lord, it is good for us to be here."], ["Matthew 17:5", "A bright cloud overshadowed them. And lo, a voice out of the cloud, saying: This is my most beloved Son, in whom I am well pleased: hear ye him."], ["Matthew 17:6", "The disciples hearing, fell upon their face, and were very much afraid."], ["Matthew 17:7", "Arise, and fear not."], ["Matthew 17:8", "They lifting up their eyes saw no one but only Jesus."], ["2 Corinthians 5:17", "If then any be in Christ a new creature, the old things are passed away, behold all things are made new."]], [["John 13:1", "Having loved his own who were in the world, he loved them unto the end."], ["Luke 22:15", "With desire I have desired to eat this pasch with you, before I suffer."], ["Matthew 26:26", "Jesus took bread, and blessed, and broke: and gave to his disciples, and said: Take ye, and eat. This is my body."], ["Matthew 26:27-28", "Taking the chalice, he gave thanks… saying: Drink ye all of this. For this is my blood of the new testament."], ["Luke 22:19", "Do this for a commemoration of me."], ["John 6:35", "I am the bread of life: he that cometh to me shall not hunger."], ["John 6:52", "I am the living bread which came down from heaven. If any man eat of this bread, he shall live for ever."], ["John 6:57", "He that eateth my flesh, and drinketh my blood, abideth in me, and I in him."], ["1 Corinthians 11:26", "As often as you shall eat this bread, and drink the chalice, you shall shew the death of the Lord, until he come."], ["Luke 24:30-31", "He took bread, and blessed, and brake, and gave to them. And their eyes were opened, and they knew him."]]]};
+
+// Schedule from the booklet:
+//  Joyful: Mondays & Saturdays, Sundays of Advent, Sundays from Epiphany until Lent
+//  Sorrowful: Tuesdays & Fridays, and daily from Ash Wednesday until Easter Sunday
+//  Glorious: Wednesdays, and Sundays from Easter until Advent
+//  Luminous: Thursdays
+// (Sundays between Christmas and Epiphany use the Joyful Mysteries.)
+function easterDate(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
+function adventStart(y){const xmas=new Date(y,11,25);return new Date(y,11,25-(xmas.getDay()||7)-21)}
+function mysteriesFor(date){
+  const t=new Date(date.getFullYear(),date.getMonth(),date.getDate()),y=t.getFullYear();
+  const easter=easterDate(y),ash=new Date(y,easter.getMonth(),easter.getDate()-46),advent=adventStart(y);
+  const wd=t.getDay(),names=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  if(t>=ash&&t<easter)return{set:"Sorrowful",why:"said daily during Lent"};
+  if(wd===0){
+    if(t>=advent)return{set:"Joyful",why:"said on the Sundays of Advent and Christmas"};
+    if(t<ash)return{set:"Joyful",why:"said on Sundays from Epiphany until Lent"};
+    return{set:"Glorious",why:"said on Sundays from Easter until Advent"};
+  }
+  const set=["","Joyful","Sorrowful","Glorious","Luminous","Sorrowful","Joyful"][wd];
+  return{set,why:"said on "+names[wd]+"s"};
+}
+/* ===================== end of editable section ===================== */
+
+const LS_KEY="novena-tracker-data", THEME_KEY="novena-tracker-theme";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const uidGen=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+let state={novenas:[],currentId:null,updatedAt:0};
+try{const raw=localStorage.getItem(LS_KEY);if(raw){const s=JSON.parse(raw);if(s&&Array.isArray(s.novenas))state=s;}}catch(e){}
+
+/* ---------- past novenas added to history (imported once) ---------- */
+function dec(b){try{return decodeURIComponent(escape(atob(b)))}catch(e){return ""}}
+function seedNovena(id,y,m,d,intention,daysDone){
+  const day=k=>new Date(y,m-1,d+k,12).toISOString();
+  const days=Array.from({length:9},(_,k)=>k<daysDone?day(k):null);
+  return {id,intention,start:day(0),createdAt:new Date(y,m-1,d,12).getTime(),days,completedAt:daysDone===9?day(8):null};
+}
+const SEED=[];
+function applySeed(){
+  state.seeded=state.seeded||[];let changed=false;
+  for(const s of SEED){
+    if(state.seeded.includes(s.id))continue;
+    if(!state.novenas.some(n=>n.id===s.id))state.novenas.push(JSON.parse(JSON.stringify(s)));
+    state.seeded.push(s.id);changed=true;
+  }
+  if(changed){
+    const cur=state.novenas.find(n=>n.id===state.currentId);
+    if(!cur||!cur.days.some(Boolean))state.currentId="hist-2026-10-30";
+  }
+  return changed;
+}
+if(applySeed()){try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}}
+
+function current(){return state.novenas.find(n=>n.id===state.currentId)||null}
+function doneCount(n){return n?n.days.filter(Boolean).length:0}
+function nextDay(n){if(!n)return 1;const i=n.days.findIndex(d=>!d);return i<0?null:i+1}
+function dayKey(d){const x=new Date(d);return new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime()}
+const fmtDate=iso=>new Date(iso).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+const fmtShort=iso=>new Date(iso).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+const fmtTime=iso=>new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
+
+function save(){
+  state.updatedAt=Date.now();
+  try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}
+}
+
+/* ---------- strand drawing ---------- */
+const CX=180,CY=178,RX=138,RY=140;
+function beadPos(i){const a=(120+i*37.5)*Math.PI/180;return{x:CX+RX*Math.cos(a),y:CY+RY*Math.sin(a),a}}
+function roseMarkup(){
+  let o="";for(let k=0;k<5;k++)o+=`<ellipse class="petal-o" cx="0" cy="-11" rx="11" ry="13" transform="rotate(${k*72})"/>`;
+  let inner="";for(let k=0;k<5;k++)inner+=`<ellipse class="petal-i" cx="0" cy="-6" rx="6.5" ry="8.5" transform="rotate(${k*72+36})"/>`;
+  return `<g class="bloom"><g class="petals">${o}${inner}<path class="heart" d="M0,-3 C4,-3 4,3 0,3 C-5,3 -5,-5 1,-6 C7,-6 8,4 1,7"/></g></g>`;
+}
+const budMarkup=`<g class="bud"><path class="sepal" d="M-11,8 C-6,2 -3,4 0,12 C3,4 6,2 11,8 C6,14 -6,14 -11,8Z"/><path class="bud-body" d="M0,-16 C9,-10 11,2 0,10 C-11,2 -9,-10 0,-16Z"/><path class="sepal" d="M-2,10 L0,16 L2,10Z"/></g>`;
+
+function drawStrand(){
+  const n=current(),nd=nextDay(n),cnt=doneCount(n);
+  let s=`<ellipse class="chain" cx="${CX}" cy="${CY}" rx="${RX}" ry="${RY}"/>`;
+  const bottomY=CY+RY;
+  s+=`<line class="chain-solid" x1="${CX}" y1="${bottomY}" x2="${CX}" y2="${bottomY+28}"/>`;
+  const my=bottomY+56;
+  s+=`<g aria-hidden="true"><circle class="medal-outer" cx="${CX}" cy="${my}" r="27"/><circle class="medal-inner" cx="${CX}" cy="${my}" r="22"/>
+      <line class="medal-cross" x1="${CX}" y1="${my-17}" x2="${CX}" y2="${my-9}"/><line class="medal-cross" x1="${CX-4}" y1="${my-14}" x2="${CX+4}" y2="${my-14}"/>
+      <text class="medal-m" x="${CX}" y="${my+12}" text-anchor="middle">M</text></g>`;
+  // center text
+  if(!n){
+    s+=`<text class="center-small" x="${CX}" y="${CY-16}">Nine roses</text><text class="center-big" x="${CX}" y="${CY+24}">9</text><text class="center-cap" x="${CX}" y="${CY+50}">Start a novena below</text>`;
+  }else if(nd===null){
+    s+=`<text class="center-small" x="${CX}" y="${CY-16}">Novena complete</text><text class="center-big" x="${CX}" y="${CY+24}">9 / 9</text><text class="center-cap" x="${CX}" y="${CY+50}">Deo gratias</text>`;
+  }else{
+    s+=`<text class="center-small" x="${CX}" y="${CY-16}">Days prayed</text><text class="center-big" x="${CX}" y="${CY+24}">${cnt} / 9</text><text class="center-cap" x="${CX}" y="${CY+50}">Next: Day ${nd}</text>`;
+  }
+  for(let i=0;i<9;i++){
+    const p=beadPos(i),d=n&&n.days[i];
+    const cls=["bead",d?"done":"",(n&&nd===i+1)?"next":""].join(" ");
+    const lbl=d?`Day ${i+1}, completed ${fmtDate(d)}`:`Day ${i+1}, not yet prayed. Tap to mark complete`;
+    s+=`<g class="${cls}" data-day="${i+1}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})" tabindex="0" role="button" aria-label="${lbl}">
+        <circle class="hit" r="30"/><circle class="ring" r="26"/>${budMarkup}${roseMarkup()}</g>`;
+    const nx=CX+(RX-44)*Math.cos(p.a),ny=CY+(RY-44)*Math.sin(p.a);
+    s+=`<text class="num${(n&&nd===i+1)?" next":""}" x="${nx.toFixed(1)}" y="${ny.toFixed(1)}" aria-hidden="true">${i+1}</text>`;
+  }
+  $("strand").innerHTML=s;
+}
+
+/* ---------- intention card ---------- */
+let editing=false;
+function drawIntent(){
+  const n=current(),c=$("intentCard");
+  if(!n){c.innerHTML=`<span class="label">Your intention</span><p class="intent-text empty">Begin your first novena and write the knot you are bringing to Mary.</p>`;return}
+  const nd=nextDay(n);
+  const status=nd===null?`Completed ${fmtShort(n.completedAt||n.days[8])}`:`Began ${fmtDate(n.start)}`;
+  if(editing){
+    c.innerHTML=`<label class="label" for="editIntent">Your intention</label><textarea id="editIntent">${esc(n.intention||"")}</textarea>
+      <div class="intent-row"><span class="meta">${status}</span><span><button class="link-btn" id="editCancel">Cancel</button> <button class="link-btn" id="editSave">Save</button></span></div>`;
+    $("editIntent").focus();
+    $("editCancel").onclick=()=>{editing=false;drawIntent()};
+    $("editSave").onclick=()=>{n.intention=$("editIntent").value.trim();editing=false;save();render();toast("Intention saved")};
+    return;
+  }
+  c.innerHTML=`<span class="label">Your intention</span>
+    <p class="intent-text${n.intention?"":" empty"}">${n.intention?esc(n.intention):"No intention written yet."}</p>
+    <div class="intent-row"><span class="meta">${status}</span><button class="link-btn" id="editBtn">Edit intention</button></div>`;
+  $("editBtn").onclick=()=>{editing=true;drawIntent()};
+}
+
+/* ---------- skipped-day note ---------- */
+function drawNote(){
+  const n=current(),el=$("skipNote");el.hidden=true;
+  if(!n)return;const nd=nextDay(n);if(nd===null)return;
+  const today=dayKey(new Date());
+  let last=null;n.days.forEach(d=>{if(d&&(!last||d>last))last=d});
+  const ref=last?dayKey(last):dayKey(n.start);
+  const gap=Math.round((today-ref)/86400000);
+  if(last&&gap>=2){el.textContent=`It has been ${gap} days since your last day of prayer. That’s all right. Pick up with Day ${nd} whenever you’re ready.`;el.hidden=false}
+  else if(!last&&gap>=2){el.textContent=`You began this novena on ${fmtShort(n.start)}. Day 1 is still waiting for you whenever you’re ready.`;el.hidden=false}
+}
+
+/* ---------- history ---------- */
+function drawHistory(){
+  const list=[...state.novenas].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const h=$("hist");
+  if(!list.length){h.innerHTML=`<li class="empty-hist">Novenas you start will be listed here, with their intentions and dates.</li>`;return}
+  h.innerHTML=list.map(n=>{
+    const c=doneCount(n),complete=c===9,isCur=n.id===state.currentId;
+    const dates=complete?`Began ${fmtShort(n.start)} · Finished ${fmtShort(n.completedAt||n.days[8])}`:`Began ${fmtShort(n.start)} · Day ${c} of 9`;
+    const chip=isCur?`<span class="chip">Current</span>`:complete?`<span class="chip done">Complete</span>`:`<span class="chip">In progress</span>`;
+    const mini=n.days.map(d=>`<i class="${d?"on":""}"></i>`).join("");
+    const btn=isCur?"":`<button class="link-btn" data-open="${n.id}">${complete?"View":"Resume"}</button>`;
+    return `<li class="hist-item"><div class="mini" aria-hidden="true">${mini}</div><div class="hist-body">${chip}<p class="hist-intent">${n.intention?esc(n.intention):"<span style='opacity:.6'>No intention written</span>"}</p><div class="meta">${dates}</div></div>${btn}</li>`;
+  }).join("");
+}
+
+function render(){drawIntent();drawStrand();drawNote();drawHistory();
+  $("prayBtn").textContent=current()&&nextDay(current())===null?"Novena Prayers":"Today’s Prayers";}
+
+/* ---------- interactions ---------- */
+let popupDay=null;
+function onBead(day){
+  let n=current();
+  if(!n){openNew();return}
+  const i=day-1;
+  if(n.days[i]){
+    popupDay=day;$("dayTitle").textContent=`Day ${day} completed`;
+    $("dayWhen").textContent=`${fmtDate(n.days[i])} at ${fmtTime(n.days[i])}`;
+    $("dayUnmark").textContent=`Unmark Day ${day}`;
+    show("dayOverlay");return;
+  }
+  n.days[i]=new Date().toISOString();
+  if(doneCount(n)===9){n.completedAt=new Date().toISOString()}
+  save();render();
+  const g=document.querySelector(`.bead[data-day="${day}"]`);if(g){g.classList.add("just")}
+  if(doneCount(n)===9){celebrate()}else{toast(`Day ${day} prayed. God bless you.`)}
+}
+$("strand").addEventListener("click",e=>{const g=e.target.closest(".bead");if(g)onBead(+g.dataset.day)});
+$("strand").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.closest(".bead")){e.preventDefault();onBead(+e.target.closest(".bead").dataset.day)}});
+$("dayKeep").onclick=()=>hide("dayOverlay");
+$("dayUnmark").onclick=()=>{const n=current();if(n&&popupDay){n.days[popupDay-1]=null;n.completedAt=null;save();render();toast(`Day ${popupDay} unmarked`)}hide("dayOverlay")};
+$("dayPray").onclick=()=>{hide("dayOverlay");openPrayers(popupDay)};
+
+$("hist").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(!b)return;state.currentId=b.dataset.open;editing=false;save();render();window.scrollTo({top:0,behavior:"smooth"})});
+
+function openNew(){
+  const n=current();
+  $("newMeta").textContent=`Starting ${fmtDate(new Date())}.`+(n&&nextDay(n)!==null?` Your current novena (Day ${doneCount(n)} of 9) will stay in your list so you can resume it.`:"");
+  $("newIntent").value="";show("newOverlay");setTimeout(()=>$("newIntent").focus(),50);
+}
+$("newBtn").onclick=openNew;
+$("newCancel").onclick=()=>hide("newOverlay");
+$("newGo").onclick=()=>{
+  const now=new Date().toISOString();
+  const n={id:uidGen(),intention:$("newIntent").value.trim(),start:now,createdAt:Date.now(),days:Array(9).fill(null),completedAt:null};
+  state.novenas.push(n);state.currentId=n.id;editing=false;save();hide("newOverlay");render();toast("Novena begun. Tap the first rose when you’ve prayed Day 1.");
+};
+
+/* ---------- prayers sheet ---------- */
+let prayDay=1;
+function para(arr){return (Array.isArray(arr)?arr:[arr]).map(t=>`<p>${esc(t)}</p>`).join("")}
+function decades(from,to,ms){
+  const set=ms.set,names=MYSTERIES[set];let h="";
+  if(from===1){const cn=current(),req=cn&&cn.intention?`(Here mention your request: “${esc(cn.intention)}”)`:"(Here mention your request.)";
+    h+=`<h4>Prayer Before the Rosary</h4><p>${esc(PRAYERS.prayerBeforeRosary[0])} <em style="color:var(--muted)">${req}</em> ${esc(PRAYERS.prayerBeforeRosary[1])}</p><h4>Apostles’ Creed</h4><p>${esc(PRAYERS.apostlesCreed)}</p>`;}
+  h+=`<p class="rub">Today: the ${set} Mysteries (${ms.why}). For each decade: announce the mystery, pray one Our Father, ten Hail Marys, one Glory Be, the Fatima Prayer, and the Pardon Prayer. Tap + beside a mystery for a Scriptural Rosary verse to read before each Hail Mary.</p><ol start="${from}">`;
+  for(let k=from;k<=to;k++)h+=`<li style="margin-bottom:6px"><details class="myst"><summary aria-label="${esc(names[k-1][0])}: show Scripture verses"><span><strong style="font-weight:600">${esc(names[k-1][0])}</strong><br><em style="color:var(--muted)">(${esc(names[k-1][1])})</em></span></summary><ol class="verses">${MYSTERY_VERSES[set][k-1].map(([r,t])=>`<li>${esc(t)} <span class="ref">${esc(r)}</span></li>`).join("")}</ol></details></li>`;
+  h+=`</ol><details style="border:none"><summary style="font-size:15px;min-height:44px;font-family:var(--f-ui);font-weight:500;color:var(--marian)">Show the decade prayers</summary>
+    <h4>Our Father</h4><p>${esc(PRAYERS.ourFather)}</p><h4>Hail Mary ×10</h4><p>${esc(PRAYERS.hailMary)}</p><h4>Glory Be</h4><p>${esc(PRAYERS.gloryBe)}</p><h4>Fatima Prayer</h4><p>${esc(PRAYERS.fatima)}</p><h4>Pardon Prayer</h4><p>${esc(PRAYERS.pardonPrayer)}</p></details>`;
+  if(to===5)h+=`<h4>Hail, Holy Queen</h4>${para(PRAYERS.hailHolyQueen)}<h4>Prayer after the Rosary</h4>${para(PRAYERS.prayerAfterRosary)}`;
+  return h;
+}
+function srcLink(t){return SOURCE_URL?`<p><a href="${esc(SOURCE_URL)}" target="_blank" rel="noopener" style="font-family:var(--f-ui);font-size:14px;color:var(--marian);font-weight:500">${esc(t)} ↗</a></p>`:""}
+let mysteryChoice=null;
+function drawPrayers(){
+  const n=current();
+  $("prayTitle").textContent=`Day ${prayDay}`;
+  $("dayChips").innerHTML=Array.from({length:9},(_,i)=>`<button role="tab" aria-selected="${i+1===prayDay}" class="${i+1===prayDay?"sel":""} ${n&&n.days[i]?"dn":""}" data-d="${i+1}" aria-label="Day ${i+1}${n&&n.days[i]?", completed":""}">${i+1}</button>`).join("");
+  const sug=mysteriesFor(new Date()),today=new Date().toDateString();
+  const chosen=mysteryChoice&&mysteryChoice.day===today?mysteryChoice.set:null;
+  const ms=chosen&&chosen!==sug.set?{set:chosen,why:`your choice; today’s suggestion is the ${sug.set} Mysteries`}:sug;
+  const picker=`<div class="myst-pick"><label class="label" for="mysterySelect">Mysteries to pray</label>
+    <select id="mysterySelect">${["Joyful","Sorrowful","Glorious","Luminous"].map(k=>`<option value="${k}"${k===ms.set?" selected":""}>${k} Mysteries${k===sug.set?" (today)":""}</option>`).join("")}</select></div>`;
+  const intent=n&&n.intention?`<div class="pray-intent"><span class="label">Praying for</span><p>${esc(n.intention)}</p></div>`:"";
+  const sec=(num,title,body,open)=>`<details${open?" open":""}><summary><span class="n">${num}</span>${title}</summary><div class="prayer">${body}</div></details>`;
+  $("prayBody").innerHTML=intent+picker+
+    sec(1,"Sign of the Cross",para(PRAYERS.signOfCross),true)+
+    sec(2,"Act of Contrition",para(PRAYERS.actOfContrition))+
+    sec(3,"First three decades",decades(1,3,ms))+
+    sec(4,`Meditation for Day ${prayDay}`,para(PRAYERS.meditations[prayDay-1])+srcLink(`Day ${prayDay} on Ascension Press`),true)+
+    sec(5,"Last two decades",decades(4,5,ms))+
+    sec(6,"Prayer to Mary, Undoer of Knots",para(PRAYERS.undoerOfKnots)+srcLink("Closing prayer on Ascension Press"));
+}
+function openPrayers(day){const n=current();prayDay=day||nextDay(n)||9;drawPrayers();show("prayOverlay");$("prayOverlay").querySelector(".sheet").scrollTop=0}
+$("prayBtn").onclick=()=>openPrayers();
+$("prayClose").onclick=()=>hide("prayOverlay");
+$("prayBody").addEventListener("change",e=>{if(e.target.id!=="mysterySelect")return;
+  mysteryChoice={day:new Date().toDateString(),set:e.target.value};
+  const sh=$("prayOverlay").querySelector(".sheet"),y=sh.scrollTop,open=[...$("prayBody").querySelectorAll(":scope > details")].map(d=>d.open);
+  drawPrayers();[...$("prayBody").querySelectorAll(":scope > details")].forEach((d,i)=>d.open=open[i]);sh.scrollTop=y;});
+
+$("dayChips").addEventListener("click",e=>{const b=e.target.closest("[data-d]");if(b){prayDay=+b.dataset.d;drawPrayers()}});
+
+/* ---------- overlays, toast, petals ---------- */
+function show(id){$(id).hidden=false}
+function hide(id){$(id).hidden=true}
+document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)o.hidden=true}));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".overlay").forEach(o=>o.hidden=true)});
+let toastT;
+function toast(msg){let t=document.querySelector(".toast");if(!t){t=document.createElement("div");t.className="toast";t.setAttribute("role","status");document.body.appendChild(t)}t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3200)}
+function celebrate(){
+  toast("All nine days complete. Thanks be to God.");
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  for(let i=0;i<40;i++){const p=document.createElement("div");p.className="petal-fall";
+    p.style.left=Math.random()*100+"vw";p.style.setProperty("--dx",(Math.random()*120-60)+"px");p.style.setProperty("--rot",(Math.random()*720-360)+"deg");
+    p.style.animationDuration=(3+Math.random()*3)+"s";p.style.animationDelay=(Math.random()*1.5)+"s";
+    if(i%3===0)p.style.background="var(--rose-light)";document.body.appendChild(p);setTimeout(()=>p.remove(),8000)}
+}
+
+/* ---------- theme ---------- */
+const THEMES=["auto","light","dark"];let theme="auto";
+try{theme=localStorage.getItem(THEME_KEY)||"auto"}catch(e){}
+function applyTheme(){if(theme==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",theme);
+  $("themeBtn").textContent=theme==="auto"?"Auto":theme==="light"?"Light":"Dark"}
+$("themeBtn").onclick=()=>{theme=THEMES[(THEMES.indexOf(theme)+1)%3];try{localStorage.setItem(THEME_KEY,theme)}catch(e){}applyTheme()};
+applyTheme();
+
+/* ---------- backup / restore ---------- */
+$("exportBtn").onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="novena-backup-"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+  toast("Backup saved to your downloads");
+};
+$("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||!Array.isArray(d.novenas))throw 0;
+      state=d;save();render();toast("Backup restored");}catch(err){toast("That file isn’t a novena backup")}
+    e.target.value="";};
+  r.readAsText(f);
+};
+/* ---------- PIN lock ---------- */
+const PIN_KEY="novena-tracker-pin";
+let pinRec=null;try{pinRec=JSON.parse(localStorage.getItem(PIN_KEY)||"null")}catch(e){}
+function h53(str){let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0;i<str.length;i++){const c=str.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}
+  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+  return (4294967296*(2097151&h2)+(h1>>>0)).toString(36)}
+const hashPin=(pin,salt)=>h53(salt+":"+pin+":knots");
+let lockMode="enter",entry="",firstPin="",fails=0;
+const wrapEl=document.querySelector(".wrap");
+function setLockText(title,msg,err){$("lockTitle").textContent=title;$("lockMsg").textContent=msg||"";$("lockMsg").classList.toggle("err",!!err)}
+function drawDots(){[...$("pinDots").children].forEach((d,i)=>d.classList.toggle("on",i<entry.length))}
+function lock(mode){
+  lockMode=mode||(pinRec?"enter":"create");entry="";drawDots();
+  document.querySelectorAll(".overlay").forEach(o=>o.hidden=true);
+  document.body.classList.add("locked");wrapEl.inert=true;$("lockScreen").hidden=false;
+  $("lockCancel").style.visibility=(lockMode==="change"||lockMode==="clear")?"visible":"hidden";$("forgotBtn").hidden=lockMode!=="enter";
+  if(lockMode==="enter")setLockText("Enter your PIN","");
+  else if(lockMode==="change")setLockText("Enter your current PIN","");
+  else if(lockMode==="clear")setLockText("Clear all history?","Enter your PIN to permanently delete every novena and intention.",true);
+  else setLockText("Create a 4-digit PIN","You’ll enter it each time you open this page.");
+}
+function unlock(){document.body.classList.remove("locked");wrapEl.inert=false;$("lockScreen").hidden=true;entry="";fails=0}
+function bad(msg){const d=$("pinDots");d.classList.remove("shake");void d.offsetWidth;d.classList.add("shake");entry="";drawDots();$("lockMsg").textContent=msg;$("lockMsg").classList.add("err")}
+function submitPin(){
+  if(lockMode==="clear"){
+    if(pinRec&&hashPin(entry,pinRec.salt)===pinRec.hash){
+      state={novenas:[],currentId:null,updatedAt:Date.now(),seeded:SEED.map(x=>x.id),cleaned20261101:true};
+      editing=false;save();render();unlock();toast("History cleared");
+    }else bad("Incorrect PIN. Nothing was deleted.");
+    return;
+  }
+  if(lockMode==="enter"||lockMode==="change"){
+    if(pinRec&&hashPin(entry,pinRec.salt)===pinRec.hash){
+      if(lockMode==="change"){lockMode="create";entry="";drawDots();$("lockCancel").style.visibility="visible";setLockText("Choose a new PIN","")}
+      else unlock();
+    }else{fails++;bad(fails>=3?"Incorrect PIN. Take your time.":"Incorrect PIN")}
+  }else if(lockMode==="create"){firstPin=entry;lockMode="confirm";entry="";drawDots();setLockText("Confirm your PIN","Enter the same 4 digits again.")}
+  else if(lockMode==="confirm"){
+    if(entry===firstPin){const salt=Math.random().toString(36).slice(2,10);pinRec={salt,hash:hashPin(entry,salt)};
+      try{localStorage.setItem(PIN_KEY,JSON.stringify(pinRec))}catch(e){}
+      unlock();toast("PIN saved");}
+    else{lockMode="create";bad("Those didn’t match. Choose a PIN again.");$("lockTitle").textContent="Create a 4-digit PIN"}
+  }
+}
+function press(k){
+  if(k==="del"){entry=entry.slice(0,-1);drawDots();return}
+  if(entry.length>=4)return;entry+=k;drawDots();
+  if(entry.length===4)setTimeout(submitPin,140);
+}
+$("keypad").addEventListener("click",e=>{const b=e.target.closest("[data-k]");if(b)press(b.dataset.k)});
+document.addEventListener("keydown",e=>{if($("lockScreen").hidden)return;
+  if(/^[0-9]$/.test(e.key)){e.preventDefault();press(e.key)}else if(e.key==="Backspace"){e.preventDefault();press("del")}},true);
+$("lockCancel").onclick=()=>unlock();
+$("lockNowBtn").onclick=()=>lock();
+$("clearHistBtn").onclick=()=>{if(!state.novenas.length){toast("There’s no history to clear");return}lock(pinRec?"clear":"create")};
+$("changePinBtn").onclick=()=>lock(pinRec?"change":"create");
+$("forgotBtn").onclick=()=>{
+  const f=$("lockFoot");
+  f.innerHTML=`<span class="meta" style="flex-basis:100%">A forgotten PIN can’t be recovered. You can erase everything on this page and start fresh, then restore a backup if you have one.</span>
+    <button class="link-btn" id="eraseNo">Keep trying</button><button class="link-btn" id="eraseYes" style="color:var(--rose)">Erase and start over</button>`;
+  f.style.flexWrap="wrap";
+  $("eraseNo").onclick=resetFoot;
+  $("eraseYes").onclick=()=>{try{localStorage.removeItem(PIN_KEY);localStorage.removeItem(LS_KEY)}catch(e){}
+    pinRec=null;state={novenas:[],currentId:null,updatedAt:0,seeded:SEED.map(x=>x.id)};try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}
+    render();resetFoot();lock("create");};
+};
+function resetFoot(){const f=$("lockFoot");f.innerHTML=`<button class="link-btn" id="forgotBtn">Forgot PIN?</button>`;f.style.flexWrap="";bindForgot()}
+const forgotHandler=$("forgotBtn").onclick;
+function bindForgot(){$("forgotBtn").onclick=forgotHandler;$("forgotBtn").hidden=lockMode!=="enter"}
+// lock again after the page has been in the background for 2 minutes
+let hiddenAt=0;
+document.addEventListener("visibilitychange",()=>{if(document.hidden)hiddenAt=Date.now();
+  else if(hiddenAt&&Date.now()-hiddenAt>120000&&$("lockScreen").hidden)lock();});
+render();
+lock();
+$("noJsNote").hidden=true;
+/* ---------- installable app support ---------- */
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
+  window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})});
+}
+// ask the browser to keep this app's saved data even when storage runs low
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+</script>
+
+</body>
+</html>
