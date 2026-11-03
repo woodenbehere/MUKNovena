@@ -623,8 +623,8 @@ function drawPrayers(){
     sec(3,"First three decades",decades(1,3,ms))+
     sec(4,`Meditation for Day ${prayDay}`,para(PRAYERS.meditations[prayDay-1])+srcLink(`Day ${prayDay} on Ascension Press`),true)+
     sec(5,"Last two decades",decades(4,5,ms))+
-    sec(6,"Prayer to Mary, Undoer of Knots",para(PRAYERS.undoerOfKnots)+srcLink("Closing prayer on Ascension Press"))+
-    sec(7,"Prayer to Saint Joseph",PRAYERS.stJoseph.map(t=>`<p>${esc(t).replace(/\n/g,"<br>")}</p>`).join(""));
+    sec(6,"Prayer to Saint Joseph",PRAYERS.stJoseph.map(t=>`<p>${esc(t).replace(/\n/g,"<br>")}</p>`).join(""))+
+    sec(7,"Prayer to Mary, Undoer of Knots",para(PRAYERS.undoerOfKnots)+srcLink("Closing prayer on Ascension Press"));
 }
 function openPrayers(day){const n=current();prayDay=day||nextDay(n)||9;drawPrayers();show("prayOverlay");$("prayOverlay").querySelector(".sheet").scrollTop=0}
 $("prayBtn").onclick=()=>openPrayers();
