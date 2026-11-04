@@ -1,6 +1,6 @@
 // Novena tracker service worker: works offline after the first visit.
 // Bump VERSION whenever you replace index.html so phones pick up the update.
-const VERSION = "novena-v7";
+const VERSION = "novena-v8";
 const CORE = ["./", "index.html", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
 
