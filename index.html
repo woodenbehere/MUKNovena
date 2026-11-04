@@ -249,7 +249,7 @@ body.locked .wrap,body.locked .overlay{filter:blur(18px);pointer-events:none;use
     <ul class="hist-list" id="hist"></ul>
   </section>
   <footer class="site-foot">
-    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v8</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
+    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v9</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
   </footer>
 </div>
 
@@ -729,7 +729,10 @@ function decades(from,to,ms){
   const P=lang==="la"?PRAYERS_LA:PRAYERS;
   const set=ms.set,names=lang==="la"?MYSTERIES_LA[set]:MYSTERIES[set];let h="";
   if(from===1){const cn=current(),req=cn&&cn.intention?T(`(Here mention your request: “${esc(cn.intention)}”)`,`(Hic petitionem tuam commemora: “${esc(cn.intention)}”)`):T("(Here mention your request.)","(Hic petitionem tuam commemora.)");
-    h+=`<h4>${T("Prayer Before the Rosary","Oratio ante Rosarium")}</h4><p>${esc(P.prayerBeforeRosary[0])} <em style="color:var(--muted)">${req}</em> ${esc(P.prayerBeforeRosary[1])}</p><h4>${T("Apostles’ Creed","Symbolum Apostolorum")}</h4><p>${esc(P.apostlesCreed)}</p>`;}
+    h+=`<h4>${T("Prayer Before the Rosary","Oratio ante Rosarium")}</h4><p>${esc(P.prayerBeforeRosary[0])} <em style="color:var(--muted)">${req}</em> ${esc(P.prayerBeforeRosary[1])}</p><h4>${T("Apostles’ Creed","Symbolum Apostolorum")}</h4><p>${esc(P.apostlesCreed)}</p>
+    <h4>${T("Our Father","Pater Noster")}</h4><p>${esc(P.ourFather)}</p>
+    ${[["faith","fidei"],["hope","spei"],["charity (love)","caritatis (amoris)"]].map(([en,la])=>`<h4>${T("Hail Mary","Ave Maria")} <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">${T(`for an increase in ${en}`,`pro augmento ${la}`)}</span></h4><p>${esc(P.hailMary)}</p>`).join("")}
+    <h4>${T("Glory Be","Gloria Patri")}</h4><p>${esc(P.gloryBe)}</p>`;}
   h+=`<p class="rub">${T(`Today: the ${set} Mysteries (${ms.why}). For each decade: announce the mystery, pray one Our Father, ten Hail Marys, one Glory Be, the Fatima Prayer, and the Pardon Prayer. Tap + beside a mystery for a Scriptural Rosary verse to read before each Hail Mary.`,
     `Hodie: Mysteria ${SET_LA[set]} (${ms.whyLa}). In singulis decadibus: enuntia mysterium, ora semel Pater Noster, decies Ave Maria, semel Gloria Patri, Orationem Fatimae et Orationem veniae. Tange + iuxta mysterium ut versum Scripturae ante singulas Ave Maria legas.`)}</p><ol start="${from}">`;
   for(let k=from;k<=to;k++){
