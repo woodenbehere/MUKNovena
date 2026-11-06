@@ -198,6 +198,18 @@ body.locked .wrap,body.locked .overlay{filter:blur(18px);pointer-events:none;use
 .install-steps li{display:flex;gap:12px;align-items:flex-start;font-size:16px;line-height:1.5;counter-increment:st}
 .install-steps li::before{content:counter(st);flex:none;width:28px;height:28px;border-radius:14px;background:var(--gold);color:var(--gold-ink);font-family:var(--f-ui);font-size:13px;font-weight:600;display:grid;place-items:center;margin-top:1px}
 .install-steps svg{vertical-align:-3px;color:var(--marian)}
+.j-head{font-family:var(--f-ui);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:14px 0 2px}
+.j-list{list-style:none;margin:0;padding:0}
+.j-item{border-top:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:4px}
+.j-text{font-family:var(--f-display);font-size:19px;font-style:italic;line-height:1.3;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.j-item.done .j-text{color:var(--muted)}
+.j-actions{display:flex;flex-wrap:wrap;gap:0 16px}
+.j-actions .link-btn{min-height:36px;padding:4px 0}
+.j-empty{color:var(--muted);font-style:italic;font-size:15px;margin:6px 0}
+.pick-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pick-chips button{border:1px solid var(--line);background:var(--bg);border-radius:16px;padding:8px 12px;font-family:var(--f-body);font-style:italic;font-size:15px;line-height:1.3;max-width:100%;text-align:left;overflow-wrap:anywhere;color:var(--ink)}
+.pick-chips button.sel{border-color:var(--marian);background:var(--marian-soft)}
+@media (max-width:430px){.install-btn span{display:none}.install-btn{padding:0;width:44px;justify-content:center}}
 .site-foot a{color:var(--marian);text-decoration:none;font-weight:500}
 .site-foot a:hover{text-decoration:underline}
 .site-foot .mail-link{display:inline-grid;place-items:center;min-width:24px;min-height:32px}
@@ -218,6 +230,9 @@ body.locked .wrap,body.locked .overlay{filter:blur(18px);pointer-events:none;use
       </button>
       <button class="theme-btn lock-btn" id="lockNowBtn" aria-label="Lock the page" title="Lock">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="11" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/><circle cx="12" cy="16" r="1.4" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button class="theme-btn lock-btn" id="journalBtn" aria-label="Open intentions journal" title="Intentions journal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 2.5v3M15 2.5v3M9 11h6M9 15h4"/></svg>
       </button>
       <button class="theme-btn" id="themeBtn" aria-label="Change light or dark mode">Auto</button>
     </div>
@@ -249,7 +264,7 @@ body.locked .wrap,body.locked .overlay{filter:blur(18px);pointer-events:none;use
     <ul class="hist-list" id="hist"></ul>
   </section>
   <footer class="site-foot">
-    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v9</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
+    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v10</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
   </footer>
 </div>
 
@@ -284,6 +299,7 @@ body.locked .wrap,body.locked .overlay{filter:blur(18px);pointer-events:none;use
     <p class="meta" id="newMeta" style="margin:6px 0 12px"></p>
     <label class="label" for="newIntent">Your intention</label>
     <textarea id="newIntent" placeholder="What knot are you bringing to Mary?" style="margin-top:6px"></textarea>
+    <div id="newPick"></div>
     <div class="row"><button class="btn" id="newCancel">Cancel</button><button class="btn primary" id="newGo">Begin Day 1</button></div>
   </div>
 </div>
@@ -294,6 +310,17 @@ body.locked .wrap,body.locked .overlay{filter:blur(18px);pointer-events:none;use
     <p class="meta" style="margin:6px 0 14px">The novena opens like an app, works offline, and keeps your progress on this phone.</p>
     <ol class="install-steps" id="installSteps"></ol>
     <div class="row"><button class="btn primary" id="installDone">Got it</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="journalOverlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="journalTitle">
+    <div class="sheet-head"><h3 id="journalTitle">Intentions journal</h3><button class="close" id="journalClose" aria-label="Close journal">×</button></div>
+    <p class="meta" style="margin:0 0 14px">Write down intentions as they come to you. When it’s time for a new novena, pick one from here.</p>
+    <label class="label" for="journalInput">New intention</label>
+    <textarea id="journalInput" placeholder="Someone or something to pray for…" style="margin-top:6px;min-height:80px"></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn primary" id="journalAdd">Add to journal</button></div>
+    <div id="journalList" style="margin-top:18px"></div>
   </div>
 </div>
 
@@ -704,16 +731,24 @@ $("dayPray").onclick=()=>{hide("dayOverlay");openPrayers(popupDay)};
 
 $("hist").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(!b)return;state.currentId=b.dataset.open;editing=false;save();render();window.scrollTo({top:0,behavior:"smooth"})});
 
-function openNew(){
+let pickedJournal=null;
+function drawNewPick(){
+  const open=journal().filter(j=>!j.usedIn);
+  $("newPick").innerHTML=open.length?`<div class="j-head">From your journal</div><div class="pick-chips">${open.map(j=>`<button type="button" data-jid="${j.id}" class="${j.id===pickedJournal?"sel":""}" aria-pressed="${j.id===pickedJournal}">${esc(j.text)}</button>`).join("")}</div>`:"";
+}
+function openNew(text,jid){
   const n=current();
   $("newMeta").textContent=`Starting ${fmtDate(new Date())}.`+(n&&nextDay(n)!==null?` Your current novena (Day ${doneCount(n)} of 9) will stay in your list so you can resume it.`:"");
-  $("newIntent").value="";show("newOverlay");setTimeout(()=>$("newIntent").focus(),50);
+  pickedJournal=jid||null;$("newIntent").value=typeof text==="string"?text:"";drawNewPick();show("newOverlay");setTimeout(()=>$("newIntent").focus(),50);
 }
-$("newBtn").onclick=openNew;
+$("newBtn").onclick=()=>openNew();
+$("newPick").addEventListener("click",e=>{const b=e.target.closest("[data-jid]");if(!b)return;const j=journal().find(x=>x.id===b.dataset.jid);if(!j)return;
+  if(pickedJournal===j.id){pickedJournal=null;$("newIntent").value=""}else{pickedJournal=j.id;$("newIntent").value=j.text}drawNewPick()});
 $("newCancel").onclick=()=>hide("newOverlay");
 $("newGo").onclick=()=>{
   const now=new Date().toISOString();
   const n={id:uidGen(),intention:$("newIntent").value.trim(),start:now,createdAt:Date.now(),days:Array(9).fill(null),completedAt:null};
+  const pj=pickedJournal&&journal().find(x=>x.id===pickedJournal);if(pj){pj.usedIn=n.id;pj.usedAt=now}pickedJournal=null;
   state.novenas.push(n);state.currentId=n.id;editing=false;save();hide("newOverlay");render();toast("Novena begun. Tap the first rose when you’ve prayed Day 1.");
 };
 
@@ -823,6 +858,39 @@ $("importFile").onchange=e=>{
     e.target.value="";};
   r.readAsText(f);
 };
+/* ---------- intentions journal ---------- */
+function journal(){if(!Array.isArray(state.journal))state.journal=[];return state.journal}
+let jEdit=null,jDel=null;
+function drawJournal(){
+  const all=[...journal()].sort((a,b)=>b.createdAt-a.createdAt),open=all.filter(j=>!j.usedIn),done=all.filter(j=>j.usedIn);
+  const item=j=>{
+    const nov=j.usedIn&&state.novenas.find(n=>n.id===j.usedIn);
+    const meta=`Added ${fmtShort(new Date(j.createdAt))}`+(j.usedIn?` · Novena begun ${fmtShort(j.usedAt)}`+(nov&&doneCount(nov)===9?" · Completed":""):"");
+    if(jEdit===j.id)return `<li class="j-item" data-id="${j.id}"><label class="label" for="jEditBox">Edit intention</label><textarea id="jEditBox">${esc(j.text)}</textarea>
+      <div class="j-actions"><button class="link-btn" data-act="save">Save</button><button class="link-btn" data-act="cancel">Cancel</button></div></li>`;
+    const acts=jDel===j.id?`<span class="meta" style="align-self:center">Delete this entry?</span><button class="link-btn" data-act="cancel">Keep it</button><button class="link-btn" data-act="confirm" style="color:var(--rose)">Delete</button>`
+      :`${j.usedIn?"":`<button class="link-btn" data-act="use">Start a novena</button>`}<button class="link-btn" data-act="edit">Edit</button><button class="link-btn" data-act="del" style="color:var(--rose)">Delete</button>`;
+    return `<li class="j-item${j.usedIn?" done":""}" data-id="${j.id}"><p class="j-text">${esc(j.text)}</p><div class="meta">${meta}</div><div class="j-actions">${acts}</div></li>`;
+  };
+  $("journalList").innerHTML=`<div class="j-head">Waiting to be prayed (${open.length})</div>`+
+    (open.length?`<ul class="j-list">${open.map(item).join("")}</ul>`:`<p class="j-empty">Nothing saved yet. Intentions you add will wait here until you pray them.</p>`)+
+    (done.length?`<div class="j-head" style="margin-top:20px">Already prayed (${done.length})</div><ul class="j-list">${done.map(item).join("")}</ul>`:"");
+}
+$("journalBtn").onclick=()=>{jEdit=null;jDel=null;drawJournal();show("journalOverlay")};
+$("journalClose").onclick=()=>hide("journalOverlay");
+$("journalAdd").onclick=()=>{const t=$("journalInput").value.trim();if(!t){$("journalInput").focus();return}
+  journal().push({id:uidGen(),text:t,createdAt:Date.now()});$("journalInput").value="";save();drawJournal();toast("Added to your journal")};
+$("journalList").addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;const id=b.closest(".j-item").dataset.id,j=journal().find(x=>x.id===id);if(!j)return;
+  const a=b.dataset.act;
+  if(a==="use"){hide("journalOverlay");openNew(j.text,j.id);return}
+  if(a==="edit"){jEdit=id;jDel=null;drawJournal();$("jEditBox").focus();return}
+  if(a==="save"){const t=$("jEditBox").value.trim();if(t){j.text=t;save()}jEdit=null;drawJournal();return}
+  if(a==="del"){jDel=id;jEdit=null;drawJournal();return}
+  if(a==="confirm"){state.journal=journal().filter(x=>x.id!==id);jDel=null;save();drawJournal();toast("Entry deleted");return}
+  if(a==="cancel"){jEdit=null;jDel=null;drawJournal()}
+});
+
 /* ---------- install to home screen ---------- */
 (function(){
   const btn=$("installBtn");
@@ -876,7 +944,7 @@ function lock(mode){
   $("lockCancel").style.visibility=(lockMode==="change"||lockMode==="clear")?"visible":"hidden";$("forgotBtn").hidden=lockMode!=="enter";
   if(lockMode==="enter")setLockText("Enter your PIN","");
   else if(lockMode==="change")setLockText("Enter your current PIN","");
-  else if(lockMode==="clear")setLockText("Clear all history?","Enter your PIN to permanently delete every novena and intention.",true);
+  else if(lockMode==="clear")setLockText("Clear all history?","Enter your PIN to permanently delete every novena, intention and journal entry.",true);
   else setLockText("Create a 4-digit PIN","You’ll enter it each time you open this page.");
 }
 function unlock(){document.body.classList.remove("locked");wrapEl.inert=false;$("lockScreen").hidden=true;entry="";fails=0}
