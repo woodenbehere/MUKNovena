@@ -273,7 +273,7 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
     <ul class="hist-list" id="hist"></ul>
   </section>
   <footer class="site-foot">
-    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v12</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
+    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v13</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
   </footer>
 </div>
 
@@ -999,14 +999,23 @@ function lock(mode,manual){
   else if(lockMode==="bio-setup")setLockText("Turn on fingerprint / face unlock","Enter your PIN first.");
   else setLockText("Create a 4-digit PIN","You’ll enter it each time you open this page.");
   bioStep=false;drawBioUi();
-  if(lockMode==="enter"&&bioRec&&bioCapable&&!manual)bioUnlock(true);
+  manualLock=!!manual;autoTries=0;tryAutoBio();
 }
 function unlock(){document.body.classList.remove("locked");wrapEl.inert=false;$("lockScreen").hidden=true;entry="";fails=0;bioStep=false;drawBioUi()}
 /* ---------- fingerprint / face unlock (passkey on this device) ---------- */
 const BIO_KEY=PIN_KEY+"-bio";
 let bioRec=null;try{bioRec=JSON.parse(localStorage.getItem(BIO_KEY)||"null")}catch(e){}
 const bioSecure=(location.protocol==="https:"||location.hostname==="localhost")&&!!window.PublicKeyCredential&&!!navigator.credentials;
-let bioCapable=false,bioBusy=false,bioStep=false;
+let bioCapable=false,bioBusy=false,bioStep=false,manualLock=false,autoTries=0;
+// Ask for the fingerprint/face on its own when the app opens or comes back into view.
+// Some browsers refuse until the page has focus, so try again on focus (at most 3 tries per lock).
+function tryAutoBio(){
+  if(!bioRec||!bioCapable||manualLock||bioBusy||lockMode!=="enter"||$("lockScreen").hidden||document.visibilityState!=="visible"||autoTries>=3)return;
+  autoTries++;bioUnlock(true);
+}
+window.addEventListener("focus",()=>setTimeout(tryAutoBio,150));
+window.addEventListener("pageshow",()=>setTimeout(tryAutoBio,300));
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(tryAutoBio,300)});
 const b64u={enc:buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""),
   dec:s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"=".repeat((4-s.length%4)%4)),c=>c.charCodeAt(0))};
 const rnd=n=>crypto.getRandomValues(new Uint8Array(n));
@@ -1037,10 +1046,10 @@ async function bioRegister(){
   finally{bioBusy=false}
 }
 if(bioSecure&&PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable){
-  PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok=>{bioCapable=!!ok;drawBioUi();
-    if(ok&&bioRec&&lockMode==="enter"&&!$("lockScreen").hidden)bioUnlock(true)}).catch(()=>{});
+  PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok=>{bioCapable=!!ok;drawBioUi();setTimeout(tryAutoBio,250)}).catch(()=>{});
 }
 $("bioUnlock").onclick=()=>bioStep?bioRegister():bioUnlock(false);
+$("lockScreen").addEventListener("click",e=>{if(e.target.closest("button"))return;if(bioRec&&bioCapable&&lockMode==="enter"&&!bioStep)bioUnlock(false)});
 $("bioBtn").onclick=()=>{
   if(bioRec){bioRec=null;try{localStorage.removeItem(BIO_KEY)}catch(e){}drawBioUi();toast("Fingerprint / face unlock is off");return}
   lock(pinRec?"bio-setup":"create");
