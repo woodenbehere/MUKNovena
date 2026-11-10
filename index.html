@@ -217,7 +217,6 @@ body.locked .wrap,body.locked .overlay{filter:blur(18px);pointer-events:none;use
 .refl-preview .label{display:inline-flex;align-items:center;gap:6px}
 .refl-preview p{margin:4px 0 0;font-family:var(--f-display);font-style:italic;font-size:18px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere}
 textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6px;background-color:var(--paper);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--line) 31px,var(--line) 32px);background-position:0 4px;background-attachment:local}
-.bio-unlock{display:inline-flex;align-items:center;gap:10px;margin-top:14px;min-height:48px;padding:0 18px;border-radius:99px;border:1px solid var(--marian);background:var(--marian-soft);color:var(--marian);font-family:var(--f-ui);font-size:15px;font-weight:500}
 .site-foot a{color:var(--marian);text-decoration:none;font-weight:500}
 .site-foot a:hover{text-decoration:underline}
 .site-foot .mail-link{display:inline-grid;place-items:center;min-width:24px;min-height:32px}
@@ -264,7 +263,6 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
       <button class="link-btn" id="importBtn">Restore a backup</button>
       <button class="link-btn" id="changePinBtn">Change PIN</button>
       <button class="link-btn" id="clearHistBtn" style="color:var(--rose)">Clear history</button>
-      <button class="link-btn" id="bioBtn" hidden>Turn on fingerprint / face unlock</button>
       <input type="file" id="importFile" accept=".json,application/json" hidden>
     </div></div>
 
@@ -273,7 +271,7 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
     <ul class="hist-list" id="hist"></ul>
   </section>
   <footer class="site-foot">
-    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v13</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
+    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v14</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
   </footer>
 </div>
 
@@ -290,7 +288,6 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
       <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
       <button class="ghost" id="lockCancel" style="visibility:hidden">Cancel</button><button data-k="0">0</button><button class="ghost" data-k="del" aria-label="Delete last digit">⌫</button>
     </div>
-    <button class="bio-unlock" id="bioUnlock" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 11v4.5c0 1.8-.5 3.5-1.3 5"/><path d="M8.5 8.8A4.5 4.5 0 0 1 16.5 11v2.5c0 2-.6 3.8-1.6 5.3"/><path d="M7.5 13v.5c0 2.6.9 4.9 2.3 6.5"/><path d="M5.2 7.5A8 8 0 0 1 20 11v2"/><path d="M4 11.5v1.5c0 2.2.6 4.3 1.6 6"/><path d="M8 3.8A8.5 8.5 0 0 1 16 3.8"/></svg><span id="bioUnlockText">Unlock with fingerprint or face</span></button>
     <div class="lock-foot" id="lockFoot"><button class="link-btn" id="forgotBtn" hidden>Forgot PIN?</button></div>
   </div>
 </div>
@@ -988,80 +985,19 @@ let lockMode="enter",entry="",firstPin="",fails=0;
 const wrapEl=document.querySelector(".wrap");
 function setLockText(title,msg,err){$("lockTitle").textContent=title;$("lockMsg").textContent=msg||"";$("lockMsg").classList.toggle("err",!!err)}
 function drawDots(){[...$("pinDots").children].forEach((d,i)=>d.classList.toggle("on",i<entry.length))}
-function lock(mode,manual){
+function lock(mode){
   lockMode=mode||(pinRec?"enter":"create");entry="";drawDots();
   document.querySelectorAll(".overlay").forEach(o=>o.hidden=true);
   document.body.classList.add("locked");wrapEl.inert=true;$("lockScreen").hidden=false;
-  $("lockCancel").style.visibility=(lockMode==="change"||lockMode==="clear"||lockMode==="bio-setup")?"visible":"hidden";$("forgotBtn").hidden=lockMode!=="enter";
+  $("lockCancel").style.visibility=(lockMode==="change"||lockMode==="clear")?"visible":"hidden";$("forgotBtn").hidden=lockMode!=="enter";
   if(lockMode==="enter")setLockText("Enter your PIN","");
   else if(lockMode==="change")setLockText("Enter your current PIN","");
   else if(lockMode==="clear")setLockText("Clear all history?","Enter your PIN to permanently delete every novena, intention and journal entry.",true);
-  else if(lockMode==="bio-setup")setLockText("Turn on fingerprint / face unlock","Enter your PIN first.");
   else setLockText("Create a 4-digit PIN","You’ll enter it each time you open this page.");
-  bioStep=false;drawBioUi();
-  manualLock=!!manual;autoTries=0;tryAutoBio();
 }
-function unlock(){document.body.classList.remove("locked");wrapEl.inert=false;$("lockScreen").hidden=true;entry="";fails=0;bioStep=false;drawBioUi()}
-/* ---------- fingerprint / face unlock (passkey on this device) ---------- */
-const BIO_KEY=PIN_KEY+"-bio";
-let bioRec=null;try{bioRec=JSON.parse(localStorage.getItem(BIO_KEY)||"null")}catch(e){}
-const bioSecure=(location.protocol==="https:"||location.hostname==="localhost")&&!!window.PublicKeyCredential&&!!navigator.credentials;
-let bioCapable=false,bioBusy=false,bioStep=false,manualLock=false,autoTries=0;
-// Ask for the fingerprint/face on its own when the app opens or comes back into view.
-// Some browsers refuse until the page has focus, so try again on focus (at most 3 tries per lock).
-function tryAutoBio(){
-  if(!bioRec||!bioCapable||manualLock||bioBusy||lockMode!=="enter"||$("lockScreen").hidden||document.visibilityState!=="visible"||autoTries>=3)return;
-  autoTries++;bioUnlock(true);
-}
-window.addEventListener("focus",()=>setTimeout(tryAutoBio,150));
-window.addEventListener("pageshow",()=>setTimeout(tryAutoBio,300));
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(tryAutoBio,300)});
-const b64u={enc:buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""),
-  dec:s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"=".repeat((4-s.length%4)%4)),c=>c.charCodeAt(0))};
-const rnd=n=>crypto.getRandomValues(new Uint8Array(n));
-function drawBioUi(){
-  $("bioBtn").hidden=!bioCapable;$("bioBtn").textContent=bioRec?"Turn off fingerprint / face unlock":"Turn on fingerprint / face unlock";
-  $("bioUnlock").hidden=!(bioCapable&&((lockMode==="enter"&&bioRec&&!$("lockScreen").hidden)||bioStep));
-  $("bioUnlockText").textContent=bioStep?"Scan your fingerprint or face":"Unlock with fingerprint or face";
-  $("keypad").style.display=bioStep?"none":"";$("pinDots").style.visibility=bioStep?"hidden":"";
-}
-async function bioUnlock(auto){
-  if(!bioRec||bioBusy||lockMode!=="enter")return;bioBusy=true;
-  try{
-    const cred=await navigator.credentials.get({publicKey:{challenge:rnd(32),allowCredentials:[{type:"public-key",id:b64u.dec(bioRec.id),transports:["internal"]}],userVerification:"required",timeout:60000}});
-    const ad=new Uint8Array(cred.response.authenticatorData);
-    if(b64u.enc(cred.rawId)===bioRec.id&&(ad[32]&0x04)&&lockMode==="enter"&&!$("lockScreen").hidden)unlock();
-  }catch(e){if(!auto){$("lockMsg").textContent="That didn’t work. Try again or use your PIN.";$("lockMsg").classList.add("err")}}
-  finally{bioBusy=false}
-}
-async function bioRegister(){
-  if(bioBusy)return;bioBusy=true;
-  try{
-    const cred=await navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:"Novena"},user:{id:rnd(16),name:"Novena tracker",displayName:"Novena tracker"},
-      pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
-      authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},timeout:60000,attestation:"none"}});
-    bioRec={id:b64u.enc(cred.rawId)};try{localStorage.setItem(BIO_KEY,JSON.stringify(bioRec))}catch(e){}
-    unlock();toast("Fingerprint / face unlock is on");
-  }catch(e){$("lockMsg").textContent="Setup was cancelled. Tap the button to try again, or Cancel.";$("lockMsg").classList.add("err")}
-  finally{bioBusy=false}
-}
-if(bioSecure&&PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable){
-  PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok=>{bioCapable=!!ok;drawBioUi();setTimeout(tryAutoBio,250)}).catch(()=>{});
-}
-$("bioUnlock").onclick=()=>bioStep?bioRegister():bioUnlock(false);
-$("lockScreen").addEventListener("click",e=>{if(e.target.closest("button"))return;if(bioRec&&bioCapable&&lockMode==="enter"&&!bioStep)bioUnlock(false)});
-$("bioBtn").onclick=()=>{
-  if(bioRec){bioRec=null;try{localStorage.removeItem(BIO_KEY)}catch(e){}drawBioUi();toast("Fingerprint / face unlock is off");return}
-  lock(pinRec?"bio-setup":"create");
-};
+function unlock(){document.body.classList.remove("locked");wrapEl.inert=false;$("lockScreen").hidden=true;entry="";fails=0}
 function bad(msg){const d=$("pinDots");d.classList.remove("shake");void d.offsetWidth;d.classList.add("shake");entry="";drawDots();$("lockMsg").textContent=msg;$("lockMsg").classList.add("err")}
 function submitPin(){
-  if(lockMode==="bio-setup"){
-    if(pinRec&&hashPin(entry,pinRec.salt)===pinRec.hash){bioStep=true;entry="";drawDots();
-      setLockText("Turn on fingerprint / face unlock","Tap the button below, then scan your fingerprint or face.");drawBioUi();}
-    else bad("Incorrect PIN");
-    return;
-  }
   if(lockMode==="clear"){
     if(pinRec&&hashPin(entry,pinRec.salt)===pinRec.hash){
       state={novenas:[],currentId:null,updatedAt:Date.now(),seeded:SEED.map(x=>x.id),cleaned20261101:true};
@@ -1083,7 +1019,6 @@ function submitPin(){
   }
 }
 function press(k){
-  if(bioStep)return;
   if(k==="del"){entry=entry.slice(0,-1);drawDots();return}
   if(entry.length>=4)return;entry+=k;drawDots();
   if(entry.length===4)setTimeout(submitPin,140);
@@ -1092,7 +1027,7 @@ $("keypad").addEventListener("click",e=>{const b=e.target.closest("[data-k]");if
 document.addEventListener("keydown",e=>{if($("lockScreen").hidden)return;
   if(/^[0-9]$/.test(e.key)){e.preventDefault();press(e.key)}else if(e.key==="Backspace"){e.preventDefault();press("del")}},true);
 $("lockCancel").onclick=()=>unlock();
-$("lockNowBtn").onclick=()=>lock(undefined,true);
+$("lockNowBtn").onclick=()=>lock();
 $("clearHistBtn").onclick=()=>{if(!state.novenas.length){toast("There’s no history to clear");return}lock(pinRec?"clear":"create")};
 $("changePinBtn").onclick=()=>lock(pinRec?"change":"create");
 $("forgotBtn").onclick=()=>{
@@ -1101,7 +1036,7 @@ $("forgotBtn").onclick=()=>{
     <button class="link-btn" id="eraseNo">Keep trying</button><button class="link-btn" id="eraseYes" style="color:var(--rose)">Erase and start over</button>`;
   f.style.flexWrap="wrap";
   $("eraseNo").onclick=resetFoot;
-  $("eraseYes").onclick=()=>{try{localStorage.removeItem(PIN_KEY);localStorage.removeItem(LS_KEY);localStorage.removeItem(BIO_KEY)}catch(e){}bioRec=null;
+  $("eraseYes").onclick=()=>{try{localStorage.removeItem(PIN_KEY);localStorage.removeItem(LS_KEY)}catch(e){}
     pinRec=null;state={novenas:[],currentId:null,updatedAt:0,seeded:SEED.map(x=>x.id)};try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}
     render();resetFoot();lock("create");};
 };
