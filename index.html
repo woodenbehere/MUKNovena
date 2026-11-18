@@ -247,6 +247,9 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
 .hm-rose.on svg{filter:drop-shadow(0 0 3px var(--glow))}
 .hm-rose.pop svg{animation:hmpop .45s cubic-bezier(.2,.9,.25,1.3)}
 @keyframes hmpop{0%{transform:scale(.5) rotate(-30deg)}100%{transform:scale(1) rotate(0)}}
+/* prayers written in lines (St. Joseph): centered, each line kept whole where it fits and wrapped evenly where it doesn’t */
+.prayer p.lines{text-align:center}
+.prayer p.lines span{display:block;text-wrap:balance}
 .site-foot a{color:var(--marian);text-decoration:none;font-weight:500}
 .site-foot a:hover{text-decoration:underline}
 .site-foot .mail-link{display:inline-grid;place-items:center;min-width:24px;min-height:32px}
@@ -301,7 +304,7 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
     <ul class="hist-list" id="hist"></ul>
   </section>
   <footer class="site-foot">
-    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v18</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
+    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v19</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
   </footer>
 </div>
 
@@ -905,7 +908,7 @@ function drawPrayers(){
     sec(3,T("First three decades","Tres priores decades"),decades(1,3,ms))+
     sec(4,T(`Meditation for Day ${prayDay}`,`Meditatio pro die ${prayDay}`),para(P.meditations[prayDay-1])+srcLink(T(`Day ${prayDay} on Ascension Press`,`Dies ${prayDay} apud Ascension Press`)),true)+
     sec(5,T("Last two decades","Duae ultimae decades"),decades(4,5,ms))+
-    sec(6,T("Prayer to Saint Joseph","Oratio ad Sanctum Ioseph"),P.stJoseph.map(t=>`<p>${esc(t).replace(/\n/g,"<br>")}</p>`).join(""))+
+    sec(6,T("Prayer to Saint Joseph","Oratio ad Sanctum Ioseph"),P.stJoseph.map(t=>`<p class="lines">${esc(t).split("\n").map(l=>`<span>${l}</span>`).join("")}</p>`).join(""))+
     sec(7,T("Prayer to Mary, Undoer of Knots","Oratio ad Mariam, Nodorum Solutricem"),para(P.undoerOfKnots)+srcLink(T("Closing prayer on Ascension Press","Oratio conclusiva apud Ascension Press")));
 }
 function redrawKeepingPlace(){
