@@ -250,6 +250,7 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
 /* prayers written in lines (St. Joseph): centered, each line kept whole where it fits and wrapped evenly where it doesn’t */
 .prayer p.lines{text-align:center}
 .prayer p.lines span{display:block;text-wrap:balance}
+.intent-insert{color:var(--marian);font-style:italic}
 .site-foot a{color:var(--marian);text-decoration:none;font-weight:500}
 .site-foot a:hover{text-decoration:underline}
 .site-foot .mail-link{display:inline-grid;place-items:center;min-width:24px;min-height:32px}
@@ -304,7 +305,7 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
     <ul class="hist-list" id="hist"></ul>
   </section>
   <footer class="site-foot">
-    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v20</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
+    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v21</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
   </footer>
 </div>
 
@@ -888,6 +889,11 @@ function decades(from,to,ms){
 }
 function srcLink(t){return SOURCE_URL?`<p><a href="${esc(SOURCE_URL)}" target="_blank" rel="noopener" style="font-family:var(--f-ui);font-size:14px;color:var(--marian);font-weight:500">${esc(t)} ↗</a></p>`:""}
 let mysteryChoice=null;
+// Day 2 asks you to name your knot: fill in this novena's intention where the text says (...describe)
+function withIntention(html,n){
+  if(!n||!n.intention)return html;
+  return html.replace(/\(\.\.\.(describe|nomina)\)/g,`(<em class="intent-insert">${esc(n.intention)}</em>)`);
+}
 function drawPrayers(){
   const n=current(),P=lang==="la"?PRAYERS_LA:PRAYERS;
   $("prayTitle").textContent=`${T("Day","Dies")} ${prayDay}`;
@@ -906,7 +912,7 @@ function drawPrayers(){
     sec(1,T("Sign of the Cross","Signum Crucis"),para(P.signOfCross),true)+
     sec(2,T("Act of Contrition","Actus Contritionis"),para(P.actOfContrition))+
     sec(3,T("First three decades","Tres priores decades"),decades(1,3,ms))+
-    sec(4,T(`Meditation for Day ${prayDay}`,`Meditatio pro die ${prayDay}`),para(P.meditations[prayDay-1])+srcLink(T(`Day ${prayDay} on Ascension Press`,`Dies ${prayDay} apud Ascension Press`)),true)+
+    sec(4,T(`Meditation for Day ${prayDay}`,`Meditatio pro die ${prayDay}`),withIntention(para(P.meditations[prayDay-1]),n)+srcLink(T(`Day ${prayDay} on Ascension Press`,`Dies ${prayDay} apud Ascension Press`)),true)+
     sec(5,T("Last two decades","Duae ultimae decades"),decades(4,5,ms))+
     sec(6,T("Prayer to Saint Joseph","Oratio ad Sanctum Ioseph"),P.stJoseph.map(t=>`<p class="lines">${esc(t).split("\n").map(l=>`<span>${l}</span>`).join("")}</p>`).join(""))+
     sec(7,T("Prayer to Mary, Undoer of Knots","Oratio ad Mariam, Nodorum Solutricem"),para(P.undoerOfKnots)+srcLink(T("Closing prayer on Ascension Press","Oratio conclusiva apud Ascension Press")));
