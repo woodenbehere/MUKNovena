@@ -33,7 +33,7 @@
   --bud:#e3e7ee;
   --bud-edge:#a9b3c3;
   --sepal:#7d9a7c;
-  --gold:#c9a24a;
+  --gold:#c9a24a; --gold-text:#94701c;
   --gold-ink:#6f5418;
   --chain:#8f9ab0;
   --shadow:0 1px 2px rgba(29,39,56,.06),0 8px 24px rgba(29,39,56,.07);
@@ -46,13 +46,13 @@
   --bg:#0f1624; --paper:#172133; --ink:#e8ecf3; --muted:#9aa6bb; --line:#2a3750;
   --marian:#8fb0e6; --marian-soft:#1f2d47; --rose:#e2566f; --rose-deep:#a52a46; --rose-light:#f39aaa;
   --glow:rgba(240,95,125,.6); --bud:#2a3550; --bud-edge:#55627e; --sepal:#6f8f74;
-  --gold:#d7b462; --gold-ink:#2b2008; --chain:#56627c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
+  --gold:#d7b462; --gold-text:#d7b462; --gold-ink:#2b2008; --chain:#56627c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
   --note:#2c2614; --note-ink:#e6d39c; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1624; --paper:#172133; --ink:#e8ecf3; --muted:#9aa6bb; --line:#2a3750;
   --marian:#8fb0e6; --marian-soft:#1f2d47; --rose:#e2566f; --rose-deep:#a52a46; --rose-light:#f39aaa;
   --glow:rgba(240,95,125,.6); --bud:#2a3550; --bud-edge:#55627e; --sepal:#6f8f74;
-  --gold:#d7b462; --gold-ink:#2b2008; --chain:#56627c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
+  --gold:#d7b462; --gold-text:#d7b462; --gold-ink:#2b2008; --chain:#56627c; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
   --note:#2c2614; --note-ink:#e6d39c; color-scheme:dark}
 
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
@@ -251,6 +251,9 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
 .prayer p.lines{text-align:center}
 .prayer p.lines span{display:block;text-wrap:balance}
 .intent-insert{color:var(--marian);font-style:italic}
+#prayBody > details.sec-done > summary{color:var(--gold-text)}
+#prayBody > details.sec-done > summary .n{background:var(--gold);box-shadow:0 0 0 2px var(--paper),0 0 0 3.5px var(--gold)}
+li.dec-done details.myst > summary strong,li.dec-done details.myst > summary em{color:var(--gold-text)!important;transition:color .4s}
 .site-foot a{color:var(--marian);text-decoration:none;font-weight:500}
 .site-foot a:hover{text-decoration:underline}
 .site-foot .mail-link{display:inline-grid;place-items:center;min-width:24px;min-height:32px}
@@ -305,7 +308,7 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
     <ul class="hist-list" id="hist"></ul>
   </section>
   <footer class="site-foot">
-    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v24</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
+    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v25</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
   </footer>
 </div>
 
@@ -888,7 +891,7 @@ function decades(from,to,ms){
   h+=`<ol start="${from}">`;
   for(let k=from;k<=to;k++){
     const vs=MYSTERY_VERSES[set][k-1].map(([r,t],i)=>lang==="la"?[refLa(r),MYSTERY_VERSES_LA[set][k-1][i]]:[r,t]);
-    h+=`<li style="margin-bottom:6px"><details class="myst"><summary aria-label="${esc(names[k-1][0])}: ${T("show Scripture verses","versus Scripturae")}"><span><strong style="font-weight:600">${esc(names[k-1][0])}</strong><br><em style="color:var(--muted)">(${esc(names[k-1][1])})</em></span></summary><ol class="verses">${vs.map(([r,t])=>`<li>${esc(t)} <span class="ref">${esc(r)}</span></li>`).join("")}</ol></details>${hmRow(set,k)}</li>`;}
+    h+=`<li style="margin-bottom:6px"${(hmCounts()[set+k]||0)===DEC_N?' class="dec-done"':""}><details class="myst"><summary aria-label="${esc(names[k-1][0])}: ${T("show Scripture verses","versus Scripturae")}"><span><strong style="font-weight:600">${esc(names[k-1][0])}</strong><br><em style="color:var(--muted)">(${esc(names[k-1][1])})</em></span></summary><ol class="verses">${vs.map(([r,t])=>`<li>${esc(t)} <span class="ref">${esc(r)}</span></li>`).join("")}</ol></details>${hmRow(set,k)}</li>`;}
   h+=`</ol><details style="border:none"><summary style="font-size:15px;min-height:44px;font-family:var(--f-ui);font-weight:500;color:var(--marian)">${T("Show the decade prayers","Orationes decadis")}</summary>
     <h4>${T("Our Father","Pater Noster")}</h4><p>${esc(P.ourFather)}</p><h4>${T("Hail Mary ×10","Ave Maria ×10")}</h4><p>${esc(P.hailMary)}</p><h4>${T("Glory Be","Gloria Patri")}</h4><p>${esc(P.gloryBe)}</p><h4>${T("Fatima Prayer","Oratio Fatimae")}</h4><p>${esc(P.fatima)}</p><h4>${T("Pardon Prayer","Oratio veniae")}</h4><p>${esc(P.pardonPrayer)}</p></details>`;
   if(to===5)h+=`<h4>${T("Hail, Holy Queen","Salve Regina")}</h4>${para(P.hailHolyQueen)}<h4>${T("Prayer after the Rosary","Oratio post Rosarium")}</h4>${para(P.prayerAfterRosary)}`;
@@ -901,6 +904,9 @@ function withIntention(html,n){
   if(!n||!n.intention)return html;
   return html.replace(/\(\.\.\.(describe|nomina)\)/g,`(<em class="intent-insert">${esc(n.intention)}</em>)`);
 }
+let secState={day:"",d:{}};try{secState=JSON.parse(localStorage.getItem(LS_KEY+"-sec")||"null")||secState}catch(e){}
+function secDone(){const t=new Date().toDateString();if(secState.day!==t)secState={day:t,d:{}};const k="d"+prayDay;return secState.d[k]||(secState.d[k]=[])}
+function applySecDone(){const done=secDone();[...$("prayBody").querySelectorAll(":scope > details")].forEach((d,i)=>d.classList.toggle("sec-done",done.includes(i+1)))}
 function drawPrayers(){
   const n=current(),P=lang==="la"?PRAYERS_LA:PRAYERS;
   $("prayTitle").textContent=`${T("Day","Dies")} ${prayDay}`;
@@ -923,6 +929,7 @@ function drawPrayers(){
     sec(5,T("Last two decades","Duae ultimae decades"),decades(4,5,ms))+
     sec(6,T("Prayer to Saint Joseph","Oratio ad Sanctum Ioseph"),P.stJoseph.map(t=>`<p class="lines">${esc(t).split("\n").map(l=>`<span>${l}</span>`).join("")}</p>`).join(""))+
     sec(7,T("Prayer to Mary, Undoer of Knots","Oratio ad Mariam, Nodorum Solutricem"),para(P.undoerOfKnots)+srcLink(T("Closing prayer on Ascension Press","Oratio conclusiva apud Ascension Press")));
+  applySecDone();
 }
 function redrawKeepingPlace(){
   const sh=$("prayOverlay").querySelector(".sheet"),y=sh.scrollTop,open=[...$("prayBody").querySelectorAll("details")].map(d=>d.open);
@@ -935,9 +942,16 @@ $("prayBody").addEventListener("click",e=>{
   const b=e.target.closest(".hm-rose");if(!b)return;e.preventDefault();
   const row=b.closest(".hm-row"),key=row.dataset.key,counts=hmCounts(),c=counts[key]||0,i=+b.dataset.i;
   const nc=(i===c-1)?c-1:Math.min(DEC_N,c+1);   // tap the newest icon to take it back; any other icon adds the next one
-  counts[key]=nc;hmSave();row.innerHTML=hmRowInner(key);row.setAttribute("aria-label",`${T("Prayers said","Orationes dictae")}: ${nc} / ${DEC_N}`);
+  counts[key]=nc;hmSave();row.innerHTML=hmRowInner(key);row.closest("li").classList.toggle("dec-done",nc===DEC_N);row.setAttribute("aria-label",`${T("Prayers said","Orationes dictae")}: ${nc} / ${DEC_N}`);
   if(nc===DEC_N){[...row.children].forEach((r,j)=>{r.style.animationDelay="";r.classList.add("pop");r.querySelector("svg").style.animationDelay=(j*40)+"ms"});toast(T("Decade complete","Decas completa"))}
   else if(nc>c){row.children[nc-1].classList.add("pop")}
+});
+$("prayBody").addEventListener("click",e=>{
+  const sm=e.target.closest("summary");if(!sm)return;const d=sm.parentElement;
+  if(d.parentElement!==$("prayBody")||d.open)return;   // only when you open a section yourself
+  const idx=[...$("prayBody").querySelectorAll(":scope > details")].indexOf(d)+1;if(idx<2)return;
+  const done=secDone();let changed=false;for(let i=1;i<idx;i++)if(!done.includes(i)){done.push(i);changed=true}
+  if(changed){try{localStorage.setItem(LS_KEY+"-sec",JSON.stringify(secState))}catch(err){}applySecDone()}
 });
 $("prayBody").addEventListener("change",e=>{if(e.target.id!=="mysterySelect")return;
   mysteryChoice={day:new Date().toDateString(),set:e.target.value};
