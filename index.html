@@ -254,6 +254,7 @@ textarea.notepad{min-height:224px;line-height:32px;padding:4px 12px;margin-top:6
 #prayBody > details.sec-done > summary{color:var(--gold-text)}
 #prayBody > details.sec-done > .prayer,#prayBody > details.sec-done > .prayer :is(p,li,h4,strong,em,span,summary,ol){color:var(--gold-text)!important;transition:color .4s}
 #prayBody > details.sec-done > summary .n{background:var(--gold);box-shadow:0 0 0 2px var(--paper),0 0 0 3.5px var(--gold)}
+li.dec-done::marker{color:var(--gold-text);font-weight:600}
 li.dec-done details.myst > summary strong,li.dec-done details.myst > summary em{color:var(--gold-text)!important;transition:color .4s}
 .site-foot a{color:var(--marian);text-decoration:none;font-weight:500}
 .site-foot a:hover{text-decoration:underline}
@@ -309,7 +310,7 @@ li.dec-done details.myst > summary strong,li.dec-done details.myst > summary em{
     <ul class="hist-list" id="hist"></ul>
   </section>
   <footer class="site-foot">
-    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v27</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
+    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v28</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
   </footer>
 </div>
 
@@ -908,7 +909,10 @@ function withIntention(html,n){
 }
 let secState={day:"",d:{}};try{secState=JSON.parse(localStorage.getItem(LS_KEY+"-sec")||"null")||secState}catch(e){}
 function secDone(){const t=new Date().toDateString();if(secState.day!==t)secState={day:t,d:{}};const k="d"+prayDay;return secState.d[k]||(secState.d[k]=[])}
-function applySecDone(){const done=secDone();[...$("prayBody").querySelectorAll(":scope > details")].forEach((d,i)=>d.classList.toggle("sec-done",done.includes(i+1)))}
+// A section is gold once you've moved past it, and the decade sections (3 and 5) also turn gold as soon as all their decades are finished.
+let shownSet="";
+function decadesFinished(from,to){const c=hmCounts();for(let k=from;k<=to;k++)if((c[shownSet+k]||0)!==DEC_N)return false;return true}
+function applySecDone(){const done=secDone();[...$("prayBody").querySelectorAll(":scope > details")].forEach((d,i)=>d.classList.toggle("sec-done",done.includes(i+1)||(i===2&&decadesFinished(1,3))||(i===4&&decadesFinished(4,5))))}
 function drawPrayers(){
   const n=current(),P=lang==="la"?PRAYERS_LA:PRAYERS;
   $("prayTitle").textContent=`${T("Day","Dies")} ${prayDay}`;
@@ -918,6 +922,7 @@ function drawPrayers(){
   const sug=mysteriesFor(new Date()),today=new Date().toDateString();
   const chosen=mysteryChoice&&mysteryChoice.day===today?mysteryChoice.set:null;
   const ms=chosen&&chosen!==sug.set?{set:chosen,why:`your choice; today’s suggestion is the ${sug.set} Mysteries`,whyLa:`electio tua; hodie suadentur Mysteria ${SET_LA[sug.set]}`}:sug;
+  shownSet=ms.set;
   const setLabel=k=>T(`${k} Mysteries`,`Mysteria ${SET_LA[k]}`)+(k===sug.set?T(" (today)"," (hodie)"):"");
   const picker=`<div class="myst-pick"><label class="label" for="mysterySelect">${T("Mysteries to pray","Mysteria oranda")}</label>
     <select id="mysterySelect">${["Joyful","Sorrowful","Glorious","Luminous"].map(k=>`<option value="${k}"${k===ms.set?" selected":""}>${setLabel(k)}</option>`).join("")}</select></div>`;
@@ -944,7 +949,7 @@ $("prayBody").addEventListener("click",e=>{
   const b=e.target.closest(".hm-rose");if(!b)return;e.preventDefault();
   const row=b.closest(".hm-row"),key=row.dataset.key,counts=hmCounts(),c=counts[key]||0,i=+b.dataset.i;
   const nc=(i===c-1)?c-1:Math.min(DEC_N,c+1);   // tap the newest icon to take it back; any other icon adds the next one
-  counts[key]=nc;hmSave();row.innerHTML=hmRowInner(key);row.closest("li").classList.toggle("dec-done",nc===DEC_N);row.setAttribute("aria-label",`${T("Prayers said","Orationes dictae")}: ${nc} / ${DEC_N}`);
+  counts[key]=nc;hmSave();row.innerHTML=hmRowInner(key);row.closest("li").classList.toggle("dec-done",nc===DEC_N);applySecDone();row.setAttribute("aria-label",`${T("Prayers said","Orationes dictae")}: ${nc} / ${DEC_N}`);
   if(nc===DEC_N){[...row.children].forEach((r,j)=>{r.style.animationDelay="";r.classList.add("pop");r.querySelector("svg").style.animationDelay=(j*40)+"ms"});toast(T("Decade complete","Decas completa"))}
   else if(nc>c){row.children[nc-1].classList.add("pop")}
 });
