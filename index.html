@@ -310,7 +310,7 @@ li.dec-done details.myst > summary strong,li.dec-done details.myst > summary em{
     <ul class="hist-list" id="hist"></ul>
   </section>
   <footer class="site-foot">
-    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v28</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
+    <span>Jacoby / Parden Web Apps 2026</span><span class="sep">-</span><span id="appVersion">v29</span><span class="sep">-</span><a href="https://venmo.com/James-Parden" target="_blank" rel="noopener">Donate</a><span class="sep">-</span><a href="mailto:jdparden@gmail.com?subject=Novena%20Tracker" class="mail-link" aria-label="Email jdparden@gmail.com" title="Email jdparden@gmail.com"><svg width="18" height="14" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="15" rx="2.5"/><path d="M2.5 3l9.5 7 9.5-7"/></svg></a>
   </footer>
 </div>
 
@@ -880,15 +880,21 @@ function hmRose(i,cls){
 function hmRowInner(key){const c=hmCounts()[key]||0;let h="";for(let i=0;i<DEC_N;i++)h+=hmRose(i,i<c?(c===DEC_N?"on gold":"on"):"");return h}
 function hmRow(set,k){const key=set+k,c=hmCounts()[key]||0;
   return `<div class="hm-row" data-key="${key}" role="group" aria-label="${T("Prayers said","Orationes dictae")}: ${c} / ${DEC_N}">${hmRowInner(key)}</div>`}
-function decades(from,to,ms){
+function beforeRosaryHtml(){
   const P=lang==="la"?PRAYERS_LA:PRAYERS;
-  const set=ms.set,names=lang==="la"?MYSTERIES_LA[set]:MYSTERIES[set];let h="";
-  if(from===1){const cn=current(),req=cn&&cn.intention?T(`(Here mention your request: “${esc(cn.intention)}”)`,`(Hic petitionem tuam commemora: “${esc(cn.intention)}”)`):T("(Here mention your request.)","(Hic petitionem tuam commemora.)");
-    h+=`<h4>${T("Prayer Before the Rosary","Oratio ante Rosarium")}</h4><p>${esc(P.prayerBeforeRosary[0])} <em style="color:var(--muted)">${req}</em> ${esc(P.prayerBeforeRosary[1])}</p><h4>${T("Apostles’ Creed","Symbolum Apostolorum")}</h4><p>${esc(P.apostlesCreed)}</p>
+const cn=current(),req=cn&&cn.intention?T(`(Here mention your request: “${esc(cn.intention)}”)`,`(Hic petitionem tuam commemora: “${esc(cn.intention)}”)`):T("(Here mention your request.)","(Hic petitionem tuam commemora.)");
+    return `<p>${esc(P.prayerBeforeRosary[0])} <em style="color:var(--muted)">${req}</em> ${esc(P.prayerBeforeRosary[1])}</p>`;}
+function introHtml(){
+  const P=lang==="la"?PRAYERS_LA:PRAYERS;
+  return `<h4>${T("Apostles’ Creed","Symbolum Apostolorum")}</h4><p>${esc(P.apostlesCreed)}</p>
     <h4>${T("Our Father","Pater Noster")}</h4><p>${esc(P.ourFather)}</p>
     ${[["faith","fidei"],["hope","spei"],["charity (love)","caritatis (amoris)"]].map(([en,la])=>`<h4>${T("Hail Mary","Ave Maria")} <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">${T(`for an increase in ${en}`,`pro augmento ${la}`)}</span></h4><p>${esc(P.hailMary)}</p>`).join("")}
     <h4>${T("Glory Be","Gloria Patri")}</h4><p>${esc(P.gloryBe)}</p>
     <h4>${T("Fatima Prayer","Oratio Fatimae")}</h4><p>${esc(P.fatima)}</p><h4>${T("Pardon Prayer","Oratio veniae")}</h4><p>${esc(P.pardonPrayer)}</p>`;}
+function decades(from,to,ms){
+  const P=lang==="la"?PRAYERS_LA:PRAYERS;
+  const set=ms.set,names=lang==="la"?MYSTERIES_LA[set]:MYSTERIES[set];let h="";
+
   if(from===1)h+=`<p class="rub">${T(`Today: the ${set} Mysteries (${ms.why}). For each decade: announce the mystery, pray one Our Father, ten Hail Marys, one Glory Be, the Fatima Prayer, and the Pardon Prayer. Tap + beside a mystery for a Scriptural Rosary verse to read before each Hail Mary, and tap each icon as you pray: the praying hands for the Our Father, a rose for each Hail Mary, then the Glory Be, Fatima Prayer and Pardon Prayer.`,
     `Hodie: Mysteria ${SET_LA[set]} (${ms.whyLa}). In singulis decadibus: enuntia mysterium, ora semel Pater Noster, decies Ave Maria, semel Gloria Patri, Orationem Fatimae et Orationem veniae. Tange + iuxta mysterium ut versum Scripturae ante singulas Ave Maria legas, et singula signa tange dum oras: manus orantes pro Pater Noster, rosam pro singulis Ave Maria, deinde Gloria Patri, Orationem Fatimae et Orationem veniae.`)}</p>`;
   h+=`<ol start="${from}">`;
@@ -897,7 +903,6 @@ function decades(from,to,ms){
     h+=`<li style="margin-bottom:6px"${(hmCounts()[set+k]||0)===DEC_N?' class="dec-done"':""}><details class="myst"><summary aria-label="${esc(names[k-1][0])}: ${T("show Scripture verses","versus Scripturae")}"><span><strong style="font-weight:600">${esc(names[k-1][0])}</strong><br><em style="color:var(--muted)">(${esc(names[k-1][1])})</em></span></summary><ol class="verses">${vs.map(([r,t])=>`<li>${esc(t)} <span class="ref">${esc(r)}</span></li>`).join("")}</ol></details>${hmRow(set,k)}</li>`;}
   h+=`</ol><details style="border:none"><summary style="font-size:15px;min-height:44px;font-family:var(--f-ui);font-weight:500;color:var(--marian)">${T("Show the decade prayers","Orationes decadis")}</summary>
     <h4>${T("Our Father","Pater Noster")}</h4><p>${esc(P.ourFather)}</p><h4>${T("Hail Mary ×10","Ave Maria ×10")}</h4><p>${esc(P.hailMary)}</p><h4>${T("Glory Be","Gloria Patri")}</h4><p>${esc(P.gloryBe)}</p><h4>${T("Fatima Prayer","Oratio Fatimae")}</h4><p>${esc(P.fatima)}</p><h4>${T("Pardon Prayer","Oratio veniae")}</h4><p>${esc(P.pardonPrayer)}</p></details>`;
-  if(to===5)h+=`<h4>${T("Hail, Holy Queen","Salve Regina")}</h4>${para(P.hailHolyQueen)}<h4>${T("Prayer after the Rosary","Oratio post Rosarium")}</h4>${para(P.prayerAfterRosary)}`;
   return h;
 }
 function srcLink(t){return SOURCE_URL?`<p><a href="${esc(SOURCE_URL)}" target="_blank" rel="noopener" style="font-family:var(--f-ui);font-size:14px;color:var(--marian);font-weight:500">${esc(t)} ↗</a></p>`:""}
@@ -907,12 +912,12 @@ function withIntention(html,n){
   if(!n||!n.intention)return html;
   return html.replace(/\(\.\.\.(describe|nomina)\)/g,`(<em class="intent-insert">${esc(n.intention)}</em>)`);
 }
-let secState={day:"",d:{}};try{secState=JSON.parse(localStorage.getItem(LS_KEY+"-sec")||"null")||secState}catch(e){}
+let secState={day:"",d:{}};try{secState=JSON.parse(localStorage.getItem(LS_KEY+"-sec2")||"null")||secState}catch(e){}
 function secDone(){const t=new Date().toDateString();if(secState.day!==t)secState={day:t,d:{}};const k="d"+prayDay;return secState.d[k]||(secState.d[k]=[])}
 // A section is gold once you've moved past it, and the decade sections (3 and 5) also turn gold as soon as all their decades are finished.
 let shownSet="";
 function decadesFinished(from,to){const c=hmCounts();for(let k=from;k<=to;k++)if((c[shownSet+k]||0)!==DEC_N)return false;return true}
-function applySecDone(){const done=secDone();[...$("prayBody").querySelectorAll(":scope > details")].forEach((d,i)=>d.classList.toggle("sec-done",done.includes(i+1)||(i===2&&decadesFinished(1,3))||(i===4&&decadesFinished(4,5))))}
+function applySecDone(){const done=secDone();[...$("prayBody").querySelectorAll(":scope > details")].forEach((d,i)=>d.classList.toggle("sec-done",done.includes(i+1)||(i===4&&decadesFinished(1,3))||(i===6&&decadesFinished(4,5))))}
 function drawPrayers(){
   const n=current(),P=lang==="la"?PRAYERS_LA:PRAYERS;
   $("prayTitle").textContent=`${T("Day","Dies")} ${prayDay}`;
@@ -931,11 +936,15 @@ function drawPrayers(){
   $("prayBody").innerHTML=intent+picker+
     sec(1,T("Sign of the Cross","Signum Crucis"),para(P.signOfCross),true)+
     sec(2,T("Act of Contrition","Actus Contritionis"),para(P.actOfContrition))+
-    sec(3,T("First three decades","Tres priores decades"),decades(1,3,ms))+
-    sec(4,T(`Meditation for Day ${prayDay}`,`Meditatio pro die ${prayDay}`),withIntention(para(P.meditations[prayDay-1]),n)+srcLink(T(`Day ${prayDay} on Ascension Press`,`Dies ${prayDay} apud Ascension Press`)),true)+
-    sec(5,T("Last two decades","Duae ultimae decades"),decades(4,5,ms))+
-    sec(6,T("Prayer to Saint Joseph","Oratio ad Sanctum Ioseph"),P.stJoseph.map(t=>`<p class="lines">${esc(t).split("\n").map(l=>`<span>${l}</span>`).join("")}</p>`).join(""))+
-    sec(7,T("Prayer to Mary, Undoer of Knots","Oratio ad Mariam, Nodorum Solutricem"),para(P.undoerOfKnots)+srcLink(T("Closing prayer on Ascension Press","Oratio conclusiva apud Ascension Press")));
+    sec(3,T("Prayer Before the Rosary","Oratio ante Rosarium"),beforeRosaryHtml())+
+    sec(4,T("Introductory Prayers","Orationes introductoriae"),introHtml())+
+    sec(5,T("First three decades","Tres priores decades"),decades(1,3,ms))+
+    sec(6,T(`Meditation for Day ${prayDay}`,`Meditatio pro die ${prayDay}`),withIntention(para(P.meditations[prayDay-1]),n)+srcLink(T(`Day ${prayDay} on Ascension Press`,`Dies ${prayDay} apud Ascension Press`)),true)+
+    sec(7,T("Last two decades","Duae ultimae decades"),decades(4,5,ms))+
+    sec(8,T("Hail, Holy Queen","Salve Regina"),para(P.hailHolyQueen))+
+    sec(9,T("Prayer after the Rosary","Oratio post Rosarium"),para(P.prayerAfterRosary))+
+    sec(10,T("Prayer to Saint Joseph","Oratio ad Sanctum Ioseph"),P.stJoseph.map(t=>`<p class="lines">${esc(t).split("\n").map(l=>`<span>${l}</span>`).join("")}</p>`).join(""))+
+    sec(11,T("Prayer to Mary, Undoer of Knots","Oratio ad Mariam, Nodorum Solutricem"),para(P.undoerOfKnots)+srcLink(T("Closing prayer on Ascension Press","Oratio conclusiva apud Ascension Press")));
   applySecDone();
 }
 function redrawKeepingPlace(){
@@ -958,7 +967,7 @@ $("prayBody").addEventListener("click",e=>{
   if(d.parentElement!==$("prayBody")||d.open)return;   // only when you open a section yourself
   const idx=[...$("prayBody").querySelectorAll(":scope > details")].indexOf(d)+1;if(idx<2)return;
   const done=secDone();let changed=false;for(let i=1;i<idx;i++)if(!done.includes(i)){done.push(i);changed=true}
-  if(changed){try{localStorage.setItem(LS_KEY+"-sec",JSON.stringify(secState))}catch(err){}applySecDone()}
+  if(changed){try{localStorage.setItem(LS_KEY+"-sec2",JSON.stringify(secState))}catch(err){}applySecDone()}
 });
 $("prayBody").addEventListener("change",e=>{if(e.target.id!=="mysterySelect")return;
   mysteryChoice={day:new Date().toDateString(),set:e.target.value};
